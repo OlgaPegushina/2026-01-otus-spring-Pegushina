@@ -18,13 +18,13 @@ public class CsvQuestionDao implements QuestionDao {
     @Override
     public List<Question> findAll() {
         String fileName = fileNameProvider.getTestFileName();
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(fileName);
+        java.net.URL resource = getClass().getClassLoader().getResource(fileName);
 
-        if (inputStream == null) {
+        if (resource == null) {
             throw new QuestionReadException("File not found: " + fileName);
         }
 
-        try (inputStream) {
+        try (InputStream inputStream = resource.openStream()) {
             InputStreamReader reader = new InputStreamReader(inputStream);
             List<QuestionDto> questionDtos = new CsvToBeanBuilder<QuestionDto>(reader)
                     .withType(QuestionDto.class)
