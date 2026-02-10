@@ -58,6 +58,6 @@ public class CsvQuestionDaoTest {
                 () -> csvQuestionDao.findAll());
 
         assertEquals("File not found: not-found", qre.getMessage(),
-                "сообщение должно быть: \"File not found: \"not-found\"");
+                "сообщение должно быть: \"File not found: not-found\"");
     }
 }
