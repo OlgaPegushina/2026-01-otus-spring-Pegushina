@@ -27,15 +27,16 @@ public class CsvQuestionDao implements QuestionDao {
         try (InputStream inputStream = resource.openStream()) {
             InputStreamReader reader = new InputStreamReader(inputStream);
             List<QuestionDto> questionDtos = new CsvToBeanBuilder<QuestionDto>(reader)
-                    .withType(QuestionDto.class)
-                    .withSeparator(';')
-                    .withIgnoreLeadingWhiteSpace(true)
-                    .withSkipLines(1)
-                    .build()
-                    .parse();
+                    .withType(QuestionDto.class).withSeparator(';')
+                    .withIgnoreLeadingWhiteSpace(true).withSkipLines(1).build().parse();
+            if (questionDtos.isEmpty()) {
+                throw new QuestionReadException("File is empty (no questions found)");
+            }
             return questionDtos.stream()
                     .map(QuestionDto::toDomainObject)
                     .toList();
+        } catch (QuestionReadException qre) {
+            throw qre;
         } catch (Exception e) {
             throw new QuestionReadException("Error reading questions from CSV", e);
         }
