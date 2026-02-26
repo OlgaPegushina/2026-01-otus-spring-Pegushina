@@ -1,4 +1,9 @@
 spring:
+  output:
+    ansi:
+      enabled: ALWAYS
+  application:
+    name: testing-students
   messages:
     baseName: messages
     encoding: UTF-8
@@ -11,3 +16,5 @@ test:
   fileNameByLocaleTag:
     ru-RU: questions_ru.csv
     en-US: questions.csv
+application:
+  title: Testing Students Application
