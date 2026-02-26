@@ -2,9 +2,11 @@ package ru.otus.hw.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import ru.otus.hw.exceptions.NumberAttemptsException;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 @Service
@@ -17,9 +19,8 @@ public class StreamsIOService implements IOService {
 
     public StreamsIOService(@Value("#{T(System).out}") PrintStream printStream,
                             @Value("#{T(System).in}") InputStream inputStream) {
-
-        this.printStream = printStream;
-        this.scanner = new Scanner(inputStream);
+        this.printStream = new PrintStream(printStream, true, StandardCharsets.UTF_8);
+        this.scanner = new Scanner(inputStream, StandardCharsets.UTF_8);
     }
 
     @Override
@@ -57,7 +58,7 @@ public class StreamsIOService implements IOService {
                 printLine(errorMessage);
             }
         }
-        throw new IllegalArgumentException("Error during reading int value");
+        throw new NumberAttemptsException();
     }
 
     @Override
