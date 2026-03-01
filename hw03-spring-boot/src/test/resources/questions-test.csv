@@ -1,0 +1,3 @@
+# Добавить сюда своих вопросов. Эту строку надо пропустить при настройке CsvToBean (withSkipLines)
+What is the default value of a boolean in Java?;true%false|false%true|null%false
+What is the purpose of the final keyword in Java?;To create an immutable variable, method, or class%true|To define a static variable%false|To indicate a volatile variable%false
