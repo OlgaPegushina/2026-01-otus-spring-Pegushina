@@ -1,0 +1,13 @@
+# Добавить сюда своих вопросов. Эту строку надо пропустить при настройке CsvToBean (withSkipLines)
+Есть ли жизнь на Марсе?;Это науке пока не известно%true|Конечно. Красные (НЛО) это с Марса. А зеленые (НЛО) с Венеры%false|Точно нет%false
+Как нужно загружать ресурс из jar в Java?;ClassLoader#geResourceAsStream или ClassPathResource#getInputStream%true|ClassLoader#geResource#getFile + FileReader%false|Wingardium Leviosa%false
+Какой предпочтительный способ реакции на исключения?;@SneakyThrow%false|e.printStackTrace()%false|Проброс дальше с предварительным оборачиванием в бизнес-исключение (например, QuestionReadException)%true|Игнорирование исключения%false
+Какая команда показывает историю коммитов в Git?;git log%true|git history%false|git show-commits%false
+Какое значение по умолчанию имеет boolean в Java?;true%false|false%true|null%false
+Какая коллекция не допускает дублирования элементов?;List%false|Set%true|Queue%false
+Какая временная сложность бинарного поиска?;O(n)%false|O(log n)%true|O(1)%false
+Какое ключевое слово используется для создания подкласса в Java?;implements%false|extends%true|super%false
+В Spring, какая аннотация используется для обозначения метода как транзакционного?;@Transactional%true|@Transaction%false|@EnableTransaction%false
+Какая структура данных использует принцип LIFO (Last-In-First-Out)?;Stack (Стек)%true|Queue (Очередь)%false|Tree (Дерево)%false
+В чем основное различие между == и .equals() в Java?;== сравнивает объектные ссылки, а .equals() сравнивает содержимое объекта%true|== сравнивает содержимое объекта, а .equals() сравнивает объектные ссылки%false|И ==, и .equals() сравнивают содержимое объекта%false
+Какова цель ключевого слова final в Java?;Чтобы создать неизменяемую переменную, метод или класс%true|Чтобы определить статическую переменную%false|Чтобы указать изменчивую переменную%false
