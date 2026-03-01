@@ -3,10 +3,9 @@ package ru.otus.hw.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import ru.otus.hw.dao.QuestionDao;
 import ru.otus.hw.domain.Answer;
 import ru.otus.hw.domain.Question;
@@ -21,15 +20,15 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
 @DisplayName("Сервис тестирования (TestServiceImpl)")
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest(classes = TestServiceImpl.class)
 public class TestServiceImplTest {
-    @Mock
+    @MockitoBean
     private QuestionDao questionDao;
 
-    @Mock
+    @MockitoBean
     private LocalizedIOService ioService;
 
-    @InjectMocks
+    @Autowired
     private TestServiceImpl testService;
 
     private Student student;

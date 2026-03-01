@@ -3,10 +3,9 @@ package ru.otus.hw.dao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import ru.otus.hw.config.TestFileNameProvider;
 import ru.otus.hw.domain.Question;
 import ru.otus.hw.exceptions.QuestionReadException;
@@ -23,15 +22,15 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.lenient;
 
 @DisplayName("загрузка вопросов и ответов")
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest(classes = CsvQuestionDao.class)
 public class CsvQuestionDaoTest {
-    @Mock
+    @MockitoBean
     private TestFileNameProvider fileNameProvider;
 
-    @Mock
+    @MockitoBean
     private LocalizedIOService ioService;
 
-    @InjectMocks
+    @Autowired
     private CsvQuestionDao csvQuestionDao;
 
     @BeforeEach
