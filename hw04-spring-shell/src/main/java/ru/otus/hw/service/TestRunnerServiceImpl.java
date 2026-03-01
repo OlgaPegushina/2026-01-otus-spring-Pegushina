@@ -2,6 +2,7 @@ package ru.otus.hw.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.otus.hw.annotation.Loggable;
 import ru.otus.hw.domain.Student;
 import ru.otus.hw.exceptions.QuestionReadException;
 
@@ -16,6 +17,7 @@ public class TestRunnerServiceImpl implements TestRunnerService {
     private final LocalizedIOService ioService;
 
     @Override
+    @Loggable
     public void runTest(Student student) {
         try {
             var testResult = testService.executeTestFor(student);
