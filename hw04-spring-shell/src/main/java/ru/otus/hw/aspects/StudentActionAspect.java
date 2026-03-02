@@ -1,8 +1,6 @@
 package ru.otus.hw.aspects;
 
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -17,7 +15,6 @@ import ru.otus.hw.service.LocalizedIOService;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class StudentActionAspect {
 
     private final LocalizedIOService ioService;
