@@ -1,13 +1,14 @@
 package ru.otus.hw.aspects;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import ru.otus.hw.domain.Student;
 import ru.otus.hw.service.LocalizedIOService;
@@ -15,8 +16,9 @@ import ru.otus.hw.service.LocalizedIOService;
 @Aspect
 @Component
 @RequiredArgsConstructor
+@Slf4j
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class StudentActionAspect {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final LocalizedIOService ioService;
 
@@ -32,7 +34,7 @@ public class StudentActionAspect {
 
     @AfterReturning(value = "studentLoginMethod()", returning = "student")
     public void logStudentLogin(JoinPoint joinPoint, Student student) {
-        logger.info(ioService.getMessage("Student.aspect.login",
+        log.info(ioService.getMessage("Student.aspect.login",
                 student.firstName(), student.lastName()));
     }
 
@@ -41,7 +43,7 @@ public class StudentActionAspect {
         String methodName = joinPoint.getSignature().getName();
         String className = joinPoint.getTarget().getClass().getSimpleName();
 
-        logger.error(ioService.getMessage("Student.aspect.error",
+        log.error(ioService.getMessage("Student.aspect.error",
                 className, methodName, exception.getMessage()));
     }
 }

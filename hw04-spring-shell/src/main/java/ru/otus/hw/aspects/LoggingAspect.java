@@ -1,11 +1,12 @@
 package ru.otus.hw.aspects;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import ru.otus.hw.service.LocalizedIOService;
 
@@ -14,8 +15,9 @@ import java.util.Arrays;
 @Aspect
 @Component
 @RequiredArgsConstructor
+@Slf4j
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class LoggingAspect {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final LocalizedIOService ioService;
 
@@ -25,19 +27,19 @@ public class LoggingAspect {
         String methodName = joinPoint.getSignature().getName();
         Object[] args = joinPoint.getArgs();
 
-        logger.info(ioService.getMessage("Logging.aspect.call", methodName, Arrays.toString(args)));
+        log.info(ioService.getMessage("Logging.aspect.call", methodName, Arrays.toString(args)));
 
         Object proceed;
         try {
             // -- выполняется сам метод
             proceed = joinPoint.proceed();
         } catch (Throwable e) {
-            logger.error(ioService.getMessage("Logging.aspect.error", methodName, e.getMessage()));
+            log.error(ioService.getMessage("Logging.aspect.error", methodName, e.getMessage()));
             throw e;
         }
 
         long executionTime = System.currentTimeMillis() - startTime;
-        logger.info(ioService.getMessage("Logging.aspect.time", methodName, executionTime));
+        log.info(ioService.getMessage("Logging.aspect.time", methodName, executionTime));
 
         return proceed;
     }
