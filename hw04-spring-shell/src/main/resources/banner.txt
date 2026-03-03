@@ -1,0 +1,12 @@
+${AnsiColor.BRIGHT_RED} ${AnsiStyle.BOLD}
+   _   _   _   _   _   _   _
+  / \ / \ / \ / \ / \ / \ / \
+ ( t | e | s | t | i | n | g )
+  \_/ \_/ \_/ \_/ \_/ \_/ \_/
+       _   _   _   _   _   _   _   _
+      / \ / \ / \ / \ / \ / \ / \ / \
+     ( s | t | u | d | e | n | t | s )
+      \_/ \_/ \_/ \_/ \_/ \_/ \_/ \_/
+
+${AnsiColor.BRIGHT_YELLOW} ${application.title} ${AnsiColor.GREEN} ${AnsiStyle.ITALIC}
+  --Spring Boot--    ${spring-boot.version} ${AnsiStyle.NORMAL}
