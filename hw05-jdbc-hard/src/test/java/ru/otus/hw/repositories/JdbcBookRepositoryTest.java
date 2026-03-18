@@ -8,6 +8,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
+import ru.otus.hw.exceptions.EntityNotFoundException;
 import ru.otus.hw.models.Author;
 import ru.otus.hw.models.Book;
 import ru.otus.hw.models.Genre;
@@ -16,6 +17,8 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisplayName("Репозиторий на основе Jdbc для работы с книгами ")
 @JdbcTest
@@ -102,6 +105,18 @@ class JdbcBookRepositoryTest {
         assertThat(repositoryJdbc.findById(1L)).isPresent();
         repositoryJdbc.deleteById(1L);
         assertThat(repositoryJdbc.findById(1L)).isEmpty();
+    }
+
+    @DisplayName("должен выбросить исключение, когда не найдена книга по id при обновлении")
+    @Test
+    void shouldExceptionBookNotFoundTest() {
+        long id = 10L;
+        var expectedBook = new Book(id, "BookTitle_10500", dbAuthors.get(2),
+                List.of(dbGenres.get(1), dbGenres.get(3)));
+
+        var exception = assertThrows(EntityNotFoundException.class, () -> repositoryJdbc.save(expectedBook));
+
+        assertTrue(exception.getMessage().contains("Book with id= %d not found".formatted(id)));
     }
 
     private static List<Author> getDbAuthors() {
