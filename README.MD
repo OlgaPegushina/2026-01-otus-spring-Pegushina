@@ -31,3 +31,11 @@
    > - <sub><sub> Spring Boot Test </sub></sub>
    > - <sub><sub> Spring Shell </sub></sub>
    > - <sub><sub> Spring AOP </sub></sub>
+
+*  **Модуль hw05-jdbc-hard**
+
+       Приложение, позволяющее вести каталог книг в библиотеке, работа с БД через Spring Jdbc, интеграционное тестрование репозиториев с помощью @JdbcTest
+
+   > - <sub><sub> Spring Boot </sub></sub>
+   > - <sub><sub> Spring Shell </sub></sub>
+   > - <sub><sub> Spring Jdbc </sub></sub>
