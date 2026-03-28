@@ -16,6 +16,7 @@
         <module>hw03-spring-boot</module>
         <module>hw04-spring-shell</module>
         <module>hw05-jdbc-hard</module>
+        <module>hw06-spring-orm</module>
     </modules>
 
     <properties>
