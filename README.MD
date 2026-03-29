@@ -39,3 +39,15 @@
    > - <sub><sub> Spring Boot </sub></sub>
    > - <sub><sub> Spring Shell </sub></sub>
    > - <sub><sub> Spring Jdbc </sub></sub>
+
+*  **Модуль hw06-spring-orm**
+
+       Приложение каталога книг с доступом к данным через Spring ORM, JPA и Hibernate. Новая сущность - комментарии к книге. (репозитории + сервисы на JPA).
+
+   > - <sub><sub>Spring Boot</sub></sub>
+   > - <sub><sub>Spring Shell</sub></sub>
+   > - <sub><sub>Spring ORM</sub></sub>
+   > - <sub><sub>JPA (Jakarta Persistence) + Hibernate</sub></sub>
+   > - <sub><sub>Доступ к данным через EntityManager (Jpa*Repository)</sub></sub>
+   > - <sub><sub>Тесты репозиториев и сервисов: @DataJpaTest, JUnit 5, AssertJ</sub></sub>
+   > - <sub><sub>БД для тестов: H2 + schema.sql/data.sql</sub></sub>
