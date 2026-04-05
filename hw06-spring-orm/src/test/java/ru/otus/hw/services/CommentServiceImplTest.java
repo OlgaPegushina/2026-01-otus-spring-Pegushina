@@ -7,9 +7,12 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import ru.otus.hw.exceptions.EntityNotFoundException;
+import ru.otus.hw.models.Book;
 import ru.otus.hw.models.Comment;
 import ru.otus.hw.repositories.JpaBookRepository;
 import ru.otus.hw.repositories.JpaCommentRepository;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -22,6 +25,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
         JpaBookRepository.class
 })
 class CommentServiceImplTest {
+    private static final long FIRST_BOOK_ID = 1L;
+    private static final long FIRST_COMMENT_ID = 1L;
 
     @Autowired
     private CommentService commentService;
@@ -32,13 +37,16 @@ class CommentServiceImplTest {
     @Test
     @DisplayName("findById(): должен вернуть комментарий по id")
     void findByIdShouldReturnComment() {
-        var actual = commentService.findById(1L);
+        var expectedBook = em.find(Book.class, FIRST_BOOK_ID);
+        var expectedComment = new Comment(FIRST_COMMENT_ID, "Comment_1", expectedBook);
 
-        assertThat(actual).isPresent();
-        assertThat(actual.get().getId()).isEqualTo(1L);
-        assertThat(actual.get().getText()).isEqualTo("Comment_1");
-        // book LAZY, но id доступен без инициализации
-        assertThat(actual.get().getBook().getId()).isEqualTo(1L);
+        var actualCommentOpt = commentService.findById(FIRST_COMMENT_ID);
+
+        assertThat(actualCommentOpt).isPresent();
+
+        assertThat(actualCommentOpt.get())
+                .usingRecursiveComparison()
+                .isEqualTo(expectedComment);
     }
 
     @Test
@@ -50,30 +58,48 @@ class CommentServiceImplTest {
     @Test
     @DisplayName("findAllByBookId(): должен вернуть список комментариев книги")
     void findAllByBookIdShouldReturnComments() {
-        var actual = commentService.findAllByBookId(1L);
+        var expectedBook = em.find(Book.class, FIRST_BOOK_ID);
+        var expectedComments = List.of(
+                new Comment(1L, "Comment_1", expectedBook),
+                new Comment(2L, "Comment_2", expectedBook)
+        );
 
-        assertThat(actual).hasSize(2);
-        assertThat(actual)
-                .extracting(Comment::getText)
-                .containsExactlyInAnyOrder("Comment_1", "Comment_2");
+        var actualComments = commentService.findAllByBookId(FIRST_BOOK_ID);
+
+        assertThat(actualComments)
+                .usingRecursiveComparison()
+                .ignoringCollectionOrder()
+                .isEqualTo(expectedComments);
     }
 
     @Test
     @DisplayName("insert(): должен сохранить комментарий для существующей книги")
     void insertShouldSaveComment() {
-        var saved = commentService.insert("NewComment", 1L);
+        var bookForComment = em.find(Book.class, FIRST_BOOK_ID);
 
-        assertThat(saved.getId()).isPositive();
-        assertThat(saved.getText()).isEqualTo("NewComment");
-        assertThat(saved.getBook().getId()).isEqualTo(1L);
+        var savedComment = commentService.insert("NewComment", FIRST_BOOK_ID);
+
+        var expectedComment = new Comment(savedComment.getId(), "NewComment", bookForComment);
+
+        assertThat(savedComment)
+                .usingRecursiveComparison()
+                .isEqualTo(expectedComment);
 
         em.flush();
         em.clear();
 
-        var fromDb = em.find(Comment.class, saved.getId());
+        var fromDb = em.find(Comment.class, savedComment.getId());
+
+        // объект вообще нашелся
         assertThat(fromDb).isNotNull();
+
+        // Проверяем поля самого комментария
+        assertThat(fromDb.getId()).isEqualTo(savedComment.getId());
         assertThat(fromDb.getText()).isEqualTo("NewComment");
-        assertThat(fromDb.getBook().getId()).isEqualTo(1L);
+
+        // Проверяем, что комментарий все еще связан с правильной книгой, сравнивая ID
+        assertThat(fromDb.getBook()).isNotNull();
+        assertThat(fromDb.getBook().getId()).isEqualTo(FIRST_BOOK_ID);
     }
 
     @Test
@@ -85,29 +111,44 @@ class CommentServiceImplTest {
     }
 
     @Test
-    @DisplayName("update(): должен обновить текст и книгу у существующего комментария")
+    @DisplayName("update(): должен обновить текст существующего комментария")
     void updateShouldUpdateComment() {
-        // comment 1 из data.sql: ("Comment_1", book 1)
-        var updated = commentService.update(1L, "UpdatedText", 3L);
+        var originalBook = em.find(Book.class, FIRST_BOOK_ID);
+        var expectedComment = new Comment(FIRST_COMMENT_ID, "UpdatedText", originalBook);
 
-        assertThat(updated.getId()).isEqualTo(1L);
-        assertThat(updated.getText()).isEqualTo("UpdatedText");
-        assertThat(updated.getBook().getId()).isEqualTo(3L);
+        var updatedComment = commentService.update(FIRST_COMMENT_ID, "UpdatedText");
+
+        assertThat(updatedComment)
+                .usingRecursiveComparison()
+                .isEqualTo(expectedComment);
+
+        String expectedText = "UpdatedText";
 
         em.flush();
         em.clear();
 
-        var fromDb = em.find(Comment.class, 1L);
-        assertThat(fromDb.getText()).isEqualTo("UpdatedText");
-        assertThat(fromDb.getBook().getId()).isEqualTo(3L);
+        var fromDb = em.find(Comment.class, FIRST_COMMENT_ID);
+
+        // объект вообще нашелся
+        assertThat(fromDb).isNotNull();
+
+        // Проверяем поля самого комментария
+        assertThat(fromDb.getId()).isEqualTo(FIRST_COMMENT_ID);
+        assertThat(fromDb.getText()).isEqualTo(expectedText);
+
+        // Проверяем, что комментарий все еще связан с правильной книгой, сравнивая ID
+        assertThat(fromDb.getBook()).isNotNull();
+        assertThat(fromDb.getBook().getId()).isEqualTo(FIRST_BOOK_ID);
     }
 
     @Test
-    @DisplayName("update(): должен бросить EntityNotFoundException если книга не найдена")
-    void updateShouldThrowIfBookNotFound() {
-        assertThatThrownBy(() -> commentService.update(1L, "UpdatedText", 999L))
+    @DisplayName("update(): должен бросить EntityNotFoundException, если комментарий не найден")
+    void updateShouldThrowIfCommentNotFound() {
+        long nonExistentCommentId = 999L;
+
+        assertThatThrownBy(() -> commentService.update(nonExistentCommentId, "UpdatedText"))
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("Book with id 999 not found");
+                .hasMessageContaining("Comment with id %d not found".formatted(nonExistentCommentId));
     }
 
     @Test
