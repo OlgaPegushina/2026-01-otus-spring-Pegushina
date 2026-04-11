@@ -51,3 +51,14 @@
    > - <sub><sub>Доступ к данным через EntityManager (Jpa*Repository)</sub></sub>
    > - <sub><sub>Тесты репозиториев и сервисов: @DataJpaTest, JUnit 5, AssertJ</sub></sub>
    > - <sub><sub>БД для тестов: H2 + schema.sql/data.sql</sub></sub>
+
+*  **Модуль hw07-spring-data-jpa**
+
+       Приложение каталога книг с доступом к данным через Spring Data JPA.
+
+   > - <sub><sub>Spring Boot</sub></sub>
+   > - <sub><sub>Spring Shell</sub></sub>
+   > - <sub><sub>Spring ORM, JPA (Jakarta Persistence) + Hibernate</sub></sub>
+   > - <sub><sub>Доступ к данным через Spring Data JPA поверх Hibernate</sub></sub>
+   > - <sub><sub>Тесты репозиториев и сервисов: @DataJpaTest, JUnit 5, AssertJ</sub></sub>
+   > - <sub><sub>БД для тестов: H2 + schema.sql/data.sql</sub></sub>
