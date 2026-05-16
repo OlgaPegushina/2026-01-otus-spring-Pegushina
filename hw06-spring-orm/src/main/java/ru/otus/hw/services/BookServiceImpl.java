@@ -37,7 +37,11 @@ public class BookServiceImpl implements BookService {
     @Transactional(readOnly = true)
     @Override
     public List<Book> findAll() {
-        return bookRepository.findAll();
+        var books = bookRepository.findAll();
+
+        books.forEach(b -> b.getGenres().size());
+
+        return books;
     }
 
     @Transactional

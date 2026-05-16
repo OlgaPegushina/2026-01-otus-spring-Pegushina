@@ -1,8 +1,6 @@
 package ru.otus.hw.services;
 
 import jakarta.persistence.EntityManager;
-import org.hibernate.Hibernate;
-import org.hibernate.LazyInitializationException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +18,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 @DataJpaTest
 @Import({
@@ -67,23 +63,14 @@ public class BookServiceImplLazyLoadingTest {
     }
 
     @Test
-    @DisplayName("findAll(): author подгружается, genres не подгружаются (lazy) снаружи сервиса")
+    @DisplayName("findAll(): должен возвращать книги с инициализированными жанрами и автором")
     void findAllShouldNotThrowLazyInitialization() {
-        var books = bookService.findAll();
-        assertThat(books).hasSize(3);
 
-        // author должен быть подгружен
-        assertThatCode(() -> books.forEach(b -> b.getAuthor().getFullName()))
-                .doesNotThrowAnyException();
-
-        // genres не должны быть подгружены
-        assertThat(books).allSatisfy(b ->
-                assertThat(Hibernate.isInitialized(b.getGenres())).isFalse()
-        );
-
-        // при попытке доступа к genres должны упасть
-        assertThatThrownBy(() -> books.forEach(b -> b.getGenres().size()))
-                .isInstanceOf(LazyInitializationException.class);
+        List<Book> books = bookService.findAll();
+        List<Book> expectedBooks = getDbBooks();
+        assertThat(books)
+                .usingRecursiveComparison()
+                .isEqualTo(expectedBooks);
     }
 
     @Test
@@ -160,5 +147,25 @@ public class BookServiceImplLazyLoadingTest {
         long totalAfter = em.createQuery("select count(c) from Comment c", Long.class)
                 .getSingleResult();
         assertThat(totalAfter).isEqualTo(1L);
+    }
+
+    private List<Book> getDbBooks() {
+
+        var author1 = new Author(1L, "Author_1");
+        var author2 = new Author(2L, "Author_2");
+        var author3 = new Author(3L, "Author_3");
+
+        var genre1 = new Genre(1L, "Genre_1");
+        var genre2 = new Genre(2L, "Genre_2");
+        var genre3 = new Genre(3L, "Genre_3");
+        var genre4 = new Genre(4L, "Genre_4");
+        var genre5 = new Genre(5L, "Genre_5");
+        var genre6 = new Genre(6L, "Genre_6");
+
+        var book1 = new Book(1L, "BookTitle_1", author1, List.of(genre1, genre2));
+        var book2 = new Book(2L, "BookTitle_2", author2, List.of(genre3, genre4));
+        var book3 = new Book(3L, "BookTitle_3", author3, List.of(genre5, genre6));
+
+        return List.of(book1, book2, book3);
     }
 }
