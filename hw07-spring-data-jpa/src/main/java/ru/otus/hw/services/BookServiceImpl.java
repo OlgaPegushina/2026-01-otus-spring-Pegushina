@@ -75,15 +75,24 @@ public class BookServiceImpl implements BookService {
     }
 
     private BookParts findBookParts(long authorId, Set<Long> genresIds) {
-        if (isEmpty(genresIds)) {
-            throw new IllegalArgumentException("Genres ids must not be null");
-        }
-        var author = authorRepository.findById(authorId)
+        var author = findAuthorById(authorId);
+        var genres = findGenresByIds(genresIds);
+        return new BookParts(author, genres);
+    }
+
+    private Author findAuthorById(long authorId) {
+        return authorRepository.findById(authorId)
                 .orElseThrow(() -> new EntityNotFoundException("Author with id %d not found".formatted(authorId)));
-        var genres = genreRepository.findAllByIds(genresIds);
+    }
+
+    private List<Genre> findGenresByIds(Set<Long> genresIds) {
+        if (isEmpty(genresIds)) {
+            throw new IllegalArgumentException("Genres ids must not be null or empty");
+        }
+        var genres = genreRepository.findAllById(genresIds);
         if (isEmpty(genres) || genresIds.size() != genres.size()) {
             throw new EntityNotFoundException("One or all genres with ids %s not found".formatted(genresIds));
         }
-        return new BookParts(author, genres);
+        return genres;
     }
 }

@@ -12,10 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.otus.hw.models.Author;
 import ru.otus.hw.models.Book;
 import ru.otus.hw.models.Genre;
-import ru.otus.hw.repositories.JpaAuthorRepository;
-import ru.otus.hw.repositories.JpaBookRepository;
-import ru.otus.hw.repositories.JpaCommentRepository;
-import ru.otus.hw.repositories.JpaGenreRepository;
+import ru.otus.hw.repositories.CommentRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,10 +22,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @Import({
         BookServiceImpl.class,
-        JpaBookRepository.class,
-        JpaAuthorRepository.class,
-        JpaGenreRepository.class,
-        JpaCommentRepository.class
 })
 @Transactional(propagation = Propagation.NOT_SUPPORTED) // тест не в транзакции
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD) // чтобы insert/update/delete не ломали следующие тесты
@@ -38,7 +31,7 @@ public class BookServiceImplLazyLoadingTest {
     private BookService bookService;
 
     @Autowired
-    private JpaCommentRepository commentRepository;
+    private CommentRepository commentRepository;
 
     @Autowired
     private EntityManager em;
