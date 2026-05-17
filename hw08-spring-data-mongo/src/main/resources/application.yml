@@ -1,22 +1,15 @@
 spring:
-  main:
-    allow-bean-definition-overriding: true
   data:
     mongodb:
+      host: localhost
+      port: 27017
       database: otus
 
-de:
-  flapdoodle:
-    mongodb:
-      embedded:
-        version: 6.0.8
-
 mongock:
-  enabled: true
-  runner-type: "InitializingBean"
+  runner-type: initializingbean
   change-logs-scan-package:
     - ru.otus.hw.mongock.changelog
   mongo-db:
     write-concern:
-      journal: true
+      journal: false
     read-concern: local
