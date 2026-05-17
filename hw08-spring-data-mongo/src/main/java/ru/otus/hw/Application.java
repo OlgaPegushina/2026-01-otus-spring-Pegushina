@@ -3,8 +3,10 @@ package ru.otus.hw;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import io.mongock.runner.springboot.EnableMongock;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 @EnableMongock
+@EnableMongoRepositories
 @SpringBootApplication
 public class Application {
 
