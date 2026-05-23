@@ -62,3 +62,15 @@
    > - <sub><sub>Доступ к данным через Spring Data JPA поверх Hibernate</sub></sub>
    > - <sub><sub>Тесты репозиториев и сервисов: @DataJpaTest, JUnit 5, AssertJ</sub></sub>
    > - <sub><sub>БД для тестов: H2 + schema.sql/data.sql</sub></sub>
+
+*  **Модуль hw08-spring-data-mongo**
+
+       Приложение на Spring Data MongoDB с интеграционными тестами
+
+   > - <sub><sub>Spring Boot</sub></sub>
+   > - <sub><sub>Spring Shell</sub></sub>
+   > - <sub><sub>NoSQL</sub></sub>
+   > - <sub><sub>Spring Data MongoDB</sub></sub>
+   > - <sub><sub>Кастомная логика каскадного удаления через MongoEventListener</sub></sub>
+   > - <sub><sub>Тесты: @DataMongoTest, JUnit 5, AssertJ</sub></sub>
+   > - <sub><sub>встраиваемая (embedded) MongoDB/data.sql</sub></sub>
