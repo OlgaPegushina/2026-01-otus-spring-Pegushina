@@ -5,6 +5,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.LinkedMultiValueMap;
@@ -13,8 +16,10 @@ import ru.otus.hw.dto.BookCreateDto;
 import ru.otus.hw.dto.BookDto;
 import ru.otus.hw.dto.BookUpdateDto;
 import ru.otus.hw.dto.CommentDto;
+import ru.otus.hw.dto.CommentUpdateDto;
 import ru.otus.hw.dto.GenreDto;
 import ru.otus.hw.exception.EntityNotFoundException;
+import ru.otus.hw.exception.handler.ErrorHandler;
 import ru.otus.hw.service.AuthorService;
 import ru.otus.hw.service.BookService;
 import ru.otus.hw.service.CommentService;
@@ -33,7 +38,19 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
 @WebMvcTest(BookController.class)
+@Import({ErrorHandler.class, BookControllerTest.ControllerTestConfig.class})
 @DisplayName("Тестирование контроллера для книг")
 class BookControllerTest {
 
@@ -52,10 +69,42 @@ class BookControllerTest {
     @MockitoBean
     private CommentService commentService;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     private List<AuthorDto> authors;
     private List<GenreDto> genres;
     private BookDto sampleBookDto;
     private List<CommentDto> sampleComments;
+    private BookUpdateDto sampleBookUpdateDto;
+
+    // Вспомогательный DTO для теста валидации, код 400
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ValidationTestDto {
+        @NotEmpty(message = "Название не может быть пустым")
+        private String title;
+    }
+
+    // Вспомогательный контроллер, который бросит исключение для кода 400
+    @RestController
+    public static class ValidationTestController {
+        @PostMapping("/test/validation-error")
+        public void triggerValidationError(@Valid @RequestBody ValidationTestDto dto) {
+            // Метод принимает DTO без BindingResult, так как из-за BindingResult никогда не бросится исключение
+            // Обработчик ошибки 400 сделан "на будущее"
+            // Тут при ошибке валидации будет брошен MethodArgumentNotValidException.
+        }
+    }
+
+    @TestConfiguration
+    static class ControllerTestConfig {
+        @Bean
+        public ValidationTestController validationTestController() {
+            return new ValidationTestController();
+        }
+    }
 
     @BeforeEach
     void setUp() {
@@ -66,6 +115,7 @@ class BookControllerTest {
                 new CommentDto(101L, "Отличная книга!"),
                 new CommentDto(102L, "Читал в школе, понравилось.")
         );
+        sampleBookUpdateDto = new BookUpdateDto(1L, "Капитанская дочка", 1L, List.of(1L));
     }
 
     @Test
@@ -111,6 +161,25 @@ class BookControllerTest {
     }
 
     @Test
+    @DisplayName("должен отображать страницу редактирования книги с корректными данными")
+    void shouldDisplayBookEditPage() throws Exception {
+        long bookId = 1L;
+
+        given(bookService.findForUpdate(bookId)).willReturn(sampleBookUpdateDto);
+        given(authorService.findAll()).willReturn(authors);
+        given(genreService.findAll()).willReturn(genres);
+
+        mvc.perform(get("/books/edit/{id}", bookId))
+                .andExpect(status().isOk())
+                .andExpect(view().name("book-form"))
+                .andExpect(model().attribute("book", sampleBookUpdateDto))
+                .andExpect(model().attribute("authors", authors))
+                .andExpect(model().attribute("genres", genres))
+                .andExpect(model().attribute("isEdit", true))
+                .andExpect(content().string(containsString("Капитанская дочка")));
+    }
+
+    @Test
     @DisplayName("должен успешно обновлять книгу")
     void shouldUpdateBookSuccessfully() throws Exception {
         var params = new LinkedMultiValueMap<String, String>();
@@ -142,7 +211,6 @@ class BookControllerTest {
     @DisplayName("должен отображать страницу с деталями книги и ее комментариями")
     void shouldReturnBookDetailsPageWithComments() throws Exception {
         long bookId = sampleBookDto.id();
-        // Настраиваем моки для обоих сервисов
         given(bookService.findById(bookId)).willReturn(sampleBookDto);
         given(commentService.findAllByBookId(bookId)).willReturn(sampleComments);
 
@@ -152,7 +220,7 @@ class BookControllerTest {
                 .andExpect(model().attribute("book", sampleBookDto))
                 .andExpect(model().attribute("comments", sampleComments))
                 .andExpect(content().string(containsString("Капитанская дочка")))
-                .andExpect(content().string(containsString("Отличная книга!"))); // Проверяем наличие текста комментария
+                .andExpect(content().string(containsString("Отличная книга!")));
     }
 
     @Test
@@ -216,6 +284,22 @@ class BookControllerTest {
     }
 
     @Test
+    @DisplayName("должен успешно обновлять комментарий и делать редирект")
+    void shouldUpdateCommentAndRedirect() throws Exception {
+        long bookId = 1L;
+        long commentId = 101L;
+
+        mvc.perform(post("/books/{bookId}/comments/{commentId}/edit", bookId, commentId)
+                        .param("id", String.valueOf(commentId))
+                        .param("text", "Это обновленный комментарий"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/books/" + bookId));
+
+        var expectedDto = new CommentUpdateDto(commentId, "Это обновленный комментарий");
+        verify(commentService, times(1)).update(expectedDto);
+    }
+
+    @Test
     @DisplayName("должен возвращать 404 Not Found, если книга для редактирования не найдена")
     void shouldReturn404WhenBookForEditNotFound() throws Exception {
         long nonExistentId = 99L;
@@ -227,5 +311,32 @@ class BookControllerTest {
                 .andExpect(view().name("error/404"))
                 .andExpect(model().attributeExists("errorMessage"))
                 .andExpect(content().string(containsString("Книга с id=" + nonExistentId + " не найдена")));
+    }
+
+    @Test
+    @DisplayName("должен возвращать 500 Internal Server Error при возникновении непредвиденной ошибки")
+    void shouldReturn500OnGenericError() throws Exception {
+        // Имитируем сбой в сервисе
+        given(bookService.findAll()).willThrow(new RuntimeException("Внутренний сбой сервиса"));
+
+        mvc.perform(get("/books"))
+                .andExpect(status().isInternalServerError()) // Ожидаем статус 500
+                .andExpect(view().name("error/500"))
+                .andExpect(model().attribute("errorMessage", "Произошла внутренняя ошибка сервера"));
+    }
+
+    @Test
+    @DisplayName("должен возвращать 400 Bad Request при ошибке валидации")
+    void shouldReturn400OnValidationError() throws Exception {
+        // Создаем "плохой" DTO с пустым названием
+        var invalidDto = new ValidationTestDto("");
+
+        mvc.perform(post("/test/validation-error") // наш тестовый эндпоинт
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidDto))) // Отправляем его как JSON
+                .andExpect(status().isBadRequest())
+                .andExpect(view().name("error/400"))
+                .andExpect(model().attributeExists("errorMessage"))
+                .andExpect(model().attribute("errorMessage", containsString("Название не может быть пустым")));
     }
 }
