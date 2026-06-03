@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактирование комментария</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; background-color: #f9f9f9; }
+        h1 { color: #2c3e50; }
+        form { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        textarea { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        .error-message { color: #dc3545; font-size: 0.9em; margin-top: 5px; }
+        .buttons { margin-top: 15px; }
+        .buttons button, .buttons a { padding: 10px 15px; border-radius: 5px; text-decoration: none; border: none; cursor: pointer; }
+        .btn-save { background-color: #28a745; color: white; }
+        .btn-cancel { background-color: #6c757d; color: white; }
+    </style>
+</head>
+<body>
+
+<h1>Редактирование комментария</h1>
+
+<form th:method="post"
+      th:action="@{/books/{bookId}/comments/{commentId}/edit(bookId=${bookId}, commentId=${comment.id})}"
+      th:object="${comment}">
+
+    <input type="hidden" th:field="*{id}" />
+
+    <div>
+        <label for="comment-text">Текст комментария:</label>
+        <textarea id="comment-text" rows="5" th:field="*{text}" required></textarea>
+
+        <!-- Отображение ошибки валидации -->
+        <div class="error-message"
+             th:if="${#fields.hasErrors('text')}"
+             th:errors="*{text}">
+            Текст ошибки
+        </div>
+    </div>
+
+    <div class="buttons">
+        <button type="submit" class="btn-save">Сохранить</button>
+        <a th:href="@{/books/{id}(id=${bookId})}" class="btn-cancel">Отмена</a>
+    </div>
+
+</form>
+
+</body>
+</html>

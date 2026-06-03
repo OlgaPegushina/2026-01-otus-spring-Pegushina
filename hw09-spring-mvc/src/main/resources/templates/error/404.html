@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Ошибка 404 - Страница не найдена</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f8f9fa; color: #343a40; text-align: center; }
+        .container { max-width: 600px; padding: 20px; }
+        h1 { font-size: 10rem; margin: 0; font-weight: 700; color: #dc3545; }
+        h2 { font-size: 2rem; margin-top: 0; }
+        p { font-size: 1.2rem; }
+        a { color: #007bff; text-decoration: none; font-weight: bold; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>404</h1>
+    <h2>Страница не найдена</h2>
+    <p class="error-message" th:text="${errorMessage}">
+        К сожалению, ресурс, который вы искали, не существует.
+    </p>
+    <a href="/" th:href="@{/}">Вернуться на главную</a>
+</div>
+</body>
+</html>

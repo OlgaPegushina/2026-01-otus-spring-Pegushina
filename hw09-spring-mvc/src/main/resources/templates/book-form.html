@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${isEdit} ? 'Редактирование книги' : 'Создание книги'">Форма книги</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input[type="text"], select { width: 100%; padding: 8px; box-sizing: border-box; }
+        .error-message { color: red; font-size: 0.9em; }
+        .buttons { margin-top: 20px; }
+        button { padding: 10px 15px; cursor: pointer; }
+        a { text-decoration: none; color: #007bff; }
+    </style>
+</head>
+<body>
+
+<h1 th:text="${isEdit} ? 'Редактировать книгу' : 'Новая книга'">Заголовок</h1>
+
+<!--
+    th:object для привязки к объекту "book" из модели.
+    th:action определяет URL :
+    - если book.id == null (создание), отправляем на /books/new
+    - Иначе редактирование, отправляем на /books/edit/{id}
+-->
+<form th:object="${book}"
+      th:action="${isEdit ? '/books/edit/' + book.id : '/books/new'}"
+      method="post">
+
+    <!--
+        Скрытое поле для ID. нужно только при редактировании,чтобы передать ID обратно на сервер.
+    -->
+    <input th:if="${isEdit}" type="hidden" th:field="*{id}" />
+
+    <div class="form-group">
+        <label for="title">Название:</label>
+        <input type="text" id="title" th:field="*{title}" placeholder="Введите название книги"/>
+        <!-- Блок для отображения ошибок валидации для поля title -->
+        <div class="error-message" th:if="${#fields.hasErrors('title')}" th:errors="*{title}">
+            Ошибка в названии
+        </div>
+    </div>
+
+    <!-- Выпадающий список для выбора автора -->
+    <div class="form-group">
+        <label for="author">Автор:</label>
+        <select id="author" th:field="*{authorId}">
+            <option value="">-- Выберите автора --</option>
+            <option th:each="author : ${authors}"
+                    th:value="${author.id}"
+                    th:text="${author.fullName}">
+                Имя Автора
+            </option>
+        </select>
+        <!-- Блок для отображения ошибок валидации для поля authorId -->
+        <div class="error-message" th:if="${#fields.hasErrors('authorId')}" th:errors="*{authorId}">
+            Ошибка в выборе автора
+        </div>
+    </div>
+
+    <!-- Список для выбора жанров (с множественным выбором) -->
+    <div class="form-group">
+        <label for="genres">Жанры (удерживайте Ctrl/Cmd для выбора нескольких):</label>
+        <select id="genres" th:field="*{genreIds}" multiple="multiple" size="5">
+            <option th:each="genre : ${genres}"
+                    th:value="${genre.id}"
+                    th:text="${genre.name}">
+                Название Жанра
+            </option>
+        </select>
+        <!-- Блок для отображения ошибок валидации для поля genreIds -->
+        <div class="error-message" th:if="${#fields.hasErrors('genreIds')}" th:errors="*{genreIds}">
+            Ошибка в выборе жанров
+        </div>
+    </div>
+
+    <div class="buttons">
+        <!-- Кнопка отправки формы. Текст на кнопке динамический! -->
+        <button type="submit" th:text="${isEdit} ? 'Сохранить' : 'Создать'">Сохранить</button>
+        <a href="all-books.html" th:href="@{/books}">Отмена</a>
+    </div>
+</form>
+
+</body>
+</html>

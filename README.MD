@@ -73,4 +73,15 @@
    > - <sub><sub>Spring Data MongoDB</sub></sub>
    > - <sub><sub>Кастомная логика каскадного удаления через MongoEventListener</sub></sub>
    > - <sub><sub>Тесты: @DataMongoTest, JUnit 5, AssertJ</sub></sub>
-   > - <sub><sub>встраиваемая (embedded) MongoDB/data.sql</sub></sub>
+   > - <sub><sub>встраиваемая (embedded) MongoDB</sub></sub>
+
+*  **Модуль hw09-spring-mvc**
+
+       CRUD приложение с Web UI и хранением данных в БД
+
+   >- <sub><sub>Spring Boot</sub></sub>
+   >- <sub><sub>Spring MVC для реализации веб-слоя (контроллеры)</sub></sub>
+   >- <sub><sub>Thymeleaf для рендеринга HTML-страниц (представления)</sub></sub>
+   >- <sub><sub>Доступ к данным через Spring Data JPA</sub></sub>
+   >- <sub><sub>Тесты веб-слоя: @WebMvcTest, MockMvc, Mockito, JUnit 5, AssertJ</sub></sub>
+   >- <sub><sub>БД для тестов: H2</sub></sub>

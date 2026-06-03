@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${book.title}">Детали книги</title>
+  <style>
+    body { font-family: sans-serif; max-width: 800px; margin: auto; padding: 20px; color: #333; }
+    .book-card, .comments-section { border: 1px solid #ccc; border-radius: 8px; padding: 20px; margin-bottom: 20px;}
+    h1, h2 { color: #2c3e50; border-bottom: 2px solid #4CAF50; padding-bottom: 5px; }
+    .comment { border-bottom: 1px solid #eee; padding: 10px 0; display: flex; justify-content: space-between; align-items: center; }
+    .comment:last-child { border-bottom: none; }
+    .actions a, .actions button { padding: 8px 12px; text-decoration: none; border-radius: 5px; }
+    .btn-edit { background-color: #007bff; color: white; }
+    .btn-delete { background-color: #dc3545; color: white; border: none; cursor: pointer; }
+    .form-new-comment textarea { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
+    .form-new-comment button { margin-top: 10px; background-color: #28a745; color: white; border: none; }
+  </style>
+</head>
+<body>
+
+<div class="book-card">
+  <h1 th:text="${book.title}">Название книги</h1>
+  <p><strong>Автор:</strong> <span th:text="${book.author.fullName}">Имя автора</span></p>
+  <p><strong>Жанры:</strong>
+    <span th:each="genre, iterStat : ${book.genres}">
+        <span th:text="${genre.name}">Название жанра</span><span th:if="${!iterStat.last}">, </span>
+    </span>
+  </p>
+
+  <div class="actions">
+    <a class="btn-edit" th:href="@{/books/edit/{id}(id=${book.id})}">Редактировать книгу</a>
+  </div>
+</div>
+
+<div class="comments-section">
+  <h2>Комментарии</h2>
+
+  <!-- Список существующих комментариев -->
+  <div th:if="${!comments.isEmpty()}">
+    <div class="comment" th:each="comment : ${comments}">
+      <p th:text="${comment.text}">Текст комментария...</p>
+
+      <div style="display: flex; gap: 10px;">
+        <!-- ССЫЛКА НА РЕДАКТИРОВАНИЕ -->
+        <a class="actions btn-edit"
+           th:href="@{/books/{bookId}/comments/{commentId}/edit(bookId=${book.id}, commentId=${comment.id})}">
+          Редактировать
+        </a>
+
+        <!-- Форма для удаления комментария -->
+        <form th:method="post" th:action="@{/books/{bookId}/comments/{commentId}/delete(bookId=${book.id}, commentId=${comment.id})}">
+          <button type="submit" class="actions btn-delete">Удалить</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div th:if="${comments.isEmpty()}">
+    <p>Комментариев пока нет</p>
+  </div>
+
+  <!-- Форма для добавления нового комментария -->
+  <hr style="margin: 20px 0;">
+  <h3>Добавить комментарий</h3>
+  <form class="form-new-comment" th:method="post" th:action="@{/books/{bookId}/comments(bookId=${book.id})}" th:object="${newComment}">
+    <input type="hidden" th:field="*{bookId}" />
+    <div>
+      <label for="comment-text">Ваш комментарий:</label>
+      <textarea id="comment-text" rows="3" th:field="*{text}" required></textarea>
+
+      <div style="color: red"
+           th:if="${#fields.hasErrors('text')}"
+           th:errors="*{text}">
+        Тут будет сообщение об ошибке валидации
+      </div>
+    </div>
+    <input type="hidden" th:field="*{bookId}" />
+    <button type="submit">Отправить</button>
+  </form>
+</div>
+
+<a href="/books" th:href="@{/books}"> &larr; Назад к списку книг</a>
+
+</body>
+</html>
