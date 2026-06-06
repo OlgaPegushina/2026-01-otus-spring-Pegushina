@@ -85,3 +85,23 @@
    >- <sub><sub>Доступ к данным через Spring Data JPA</sub></sub>
    >- <sub><sub>Тесты веб-слоя: @WebMvcTest, MockMvc, Mockito, JUnit 5, AssertJ</sub></sub>
    >- <sub><sub>БД для тестов: H2</sub></sub>
+
+*   ### **Модуль hw10-spring-rest**
+
+        CRUD-приложение с динамическим Web UI на JavaScript, построенное на архитектуре REST API.
+
+   *   ***Бэкенд:***
+       >- <sub><sub>**Spring Boot** </sub></sub>
+       >- <sub><sub>**Spring MVC** для построения REST API (используем `@RestController` для отдачи JSON)</sub></sub>
+       >- <sub><sub>**Spring Data JPA** для работы с базой данных</sub></sub>
+       >- <sub><sub>**DTO (Data Transfer Objects)** для контракта между бэкендом и фронтендом</sub></sub>
+
+   *   ***Фронтенд:***
+       >- <sub><sub>**Чистый JavaScript (ES6+)** </sub></sub>
+       >- <sub><sub>**Fetch API** — инструмент для асинхронного общения фронта с бэкендом (AJAX)</sub></sub>
+       >- <sub><sub>**HTML/CSS** — UI</sub></sub>
+
+   *   ***Тестирование:***
+       >- <sub><sub>**@WebMvcTest, MockMvc** для изоляционного тестирования REST-контроллеров</sub></sub>
+       >- <sub><sub>**JUnit 5, AssertJ, Mockito** — для написания юнит-тестов</sub></sub>
+       >- <sub><sub>**БД H2** для быстрых и независимых тестов работы с данными</sub></sub>
