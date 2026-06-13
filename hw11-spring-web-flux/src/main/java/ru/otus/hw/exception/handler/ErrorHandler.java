@@ -3,10 +3,10 @@ package ru.otus.hw.exception.handler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.support.WebExchangeBindException;
 import ru.otus.hw.exception.EntityNotFoundException;
 
 import java.util.stream.Collectors;
@@ -24,9 +24,9 @@ public class ErrorHandler {
                 .build();
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ExceptionHandler(WebExchangeBindException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiError handleInvalidArguments(MethodArgumentNotValidException ex) {
+    public ApiError handleInvalidArguments(WebExchangeBindException ex) {
         String errorMessage = ex.getBindingResult().getFieldErrors().stream()
                 .map(FieldError::getDefaultMessage)
                 .collect(Collectors.joining("\n"));

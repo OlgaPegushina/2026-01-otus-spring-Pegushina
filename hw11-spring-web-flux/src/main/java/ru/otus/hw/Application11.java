@@ -8,8 +8,10 @@ public class Application11 {
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application11.class, args);
-		System.out.printf("Чтобы перейти на страницу сайта необходимо открыть: %n%s%n",
-				"http://localhost:8080");
+		System.out.printf("Чтобы перейти на страницу сайта необходимо открыть: %n%s%n%s",
+				"http://localhost:8080",
+				"страница с эндпоинтами swagger-ui " +
+				"http://localhost:8080/webjars/swagger-ui/index.html (с запросом /v3/api-docs)");
 	}
 
 }
