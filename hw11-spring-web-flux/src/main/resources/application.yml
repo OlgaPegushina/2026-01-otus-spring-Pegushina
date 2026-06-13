@@ -1,0 +1,19 @@
+spring:
+  r2dbc:
+    url: r2dbc:h2:mem:///maindb;
+
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:data.sql
+      schema-locations: classpath:schema.sql
+
+  h2:
+    console:
+      path: /h2-console
+      settings:
+        web-allow-others: true
+
+  output:
+    ansi:
+      enabled: ALWAYS

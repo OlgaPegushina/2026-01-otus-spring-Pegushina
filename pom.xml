@@ -20,6 +20,7 @@
         <module>hw07-spring-data-jpa</module>
         <module>hw09-spring-mvc</module>
         <module>hw10-spring-rest</module>
+        <module>hw11-spring-web-flux</module>
     </modules>
 
     <properties>
