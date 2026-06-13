@@ -11,7 +11,7 @@
     </parent>
 
     <groupId>ru.otus</groupId>
-    <artifactId>hw-10-spring-rest</artifactId>
+    <artifactId>hw10-spring-rest</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>spring-rest-demo</name>
 

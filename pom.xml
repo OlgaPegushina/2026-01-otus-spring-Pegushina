@@ -19,7 +19,7 @@
         <module>hw06-spring-orm</module>
         <module>hw07-spring-data-jpa</module>
         <module>hw09-spring-mvc</module>
-        <module>hw-10-spring-rest</module>
+        <module>hw10-spring-rest</module>
     </modules>
 
     <properties>
