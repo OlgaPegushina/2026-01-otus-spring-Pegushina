@@ -67,6 +67,8 @@
 
        Приложение на Spring Data MongoDB с интеграционными тестами
 
+   [Модуль находится здесь](https://github.com/OlgaPegushina/2026-01-otus-spring-Pegushina/tree/hw08/hw08-spring-data-mongo)
+   
    > - <sub><sub>Spring Boot</sub></sub>
    > - <sub><sub>Spring Shell</sub></sub>
    > - <sub><sub>NoSQL</sub></sub>
