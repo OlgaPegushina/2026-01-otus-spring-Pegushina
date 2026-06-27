@@ -88,7 +88,7 @@
    >- <sub><sub>Тесты веб-слоя: @WebMvcTest, MockMvc, Mockito, JUnit 5, AssertJ</sub></sub>
    >- <sub><sub>БД для тестов: H2</sub></sub>
 
-*   ### **Модуль hw10-spring-rest**
+*   ## **Модуль hw10-spring-rest**
 
         CRUD-приложение с динамическим Web UI на JavaScript, построенное на архитектуре REST API.
 
@@ -107,3 +107,32 @@
        >- <sub><sub>**@WebMvcTest, MockMvc** для изоляционного тестирования REST-контроллеров</sub></sub>
        >- <sub><sub>**JUnit 5, AssertJ, Mockito** — для написания юнит-тестов</sub></sub>
        >- <sub><sub>**БД H2** для быстрых и независимых тестов работы с данными</sub></sub>
+
+*   ## **Модуль hw11-spring-web-flux**
+
+        Полностью **реактивное** CRUD-приложение с динамическим Web UI на JavaScript. Приложение построено на неблокирующем стеке технологий и предоставляет асинхронный REST API.
+
+  *   ***Бэкенд:***
+
+    >  - <sub><sub>**Spring Boot 3** — основа приложения</sub></sub>
+    >  - <sub><sub>**Spring WebFlux** для построения неблокирующего, реактивного REST API (используем те же `@RestController`, но на реактивных стримах `Mono` и `Flux`)</sub></sub>
+    >  - <sub><sub>**Spring Data R2DBC** для реактивной работы с базой данных (вместо блокирующего JPA)</sub></sub>
+    >  - <sub><sub>**Spring Validation** для валидации входящих DTO (`@Valid`)</sub></sub>
+    >  - <sub><sub>**DTO (Data Transfer Objects)** в виде Java Records для контракта между бэкендом и фронтендом</sub></sub>
+
+  *   ***Фронтенд:***
+
+    >  - <sub><sub>**Чистый JavaScript (ES6+)** </sub></sub>
+    >  - <sub><sub>**Fetch API** — инструмент для асинхронного общения фронта с бэкендом (AJAX)</sub></sub>
+    >  - <sub><sub>**HTML/CSS** — UI</sub></sub>
+
+  *   ***Тестирование:***
+
+    >  - <sub><sub>**@WebFluxTest, WebTestClient** для изоляционного тестирования реактивных REST-контроллеров (неблокирующий аналог MockMvc)</sub></sub>
+    >  - <sub><sub>**JUnit 5, AssertJ, Mockito** — классический набор для написания юнит-тестов</sub></sub>
+    >  - <sub><sub>**БД H2** (через **R2DBC**-драйвер) для быстрых и независимых тестов работы с данными</sub></sub>
+
+  *   ***Документация API:***
+
+    >  - <sub><sub>**Springdoc OpenAPI (Swagger UI)** для автоматической генерации интерактивной документации по API</sub></sub>
+    >  - <sub><sub>После запуска приложения документация будет доступна по адресу `http://localhost:8080/webjars/swagger-ui/index.html`</sub></sub>
