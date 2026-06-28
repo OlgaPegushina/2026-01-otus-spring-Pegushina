@@ -136,3 +136,31 @@
 
     >  - <sub><sub>**Springdoc OpenAPI (Swagger UI)** для автоматической генерации интерактивной документации по API</sub></sub>
     >  - <sub><sub>После запуска приложения документация будет доступна по адресу `http://localhost:8080/webjars/swagger-ui/index.html`</sub></sub>
+
+*   ## **Модуль hw12-spring-security-auth**
+        CRUD-приложение с динамическим Web UI на JavaScript и REST API. Реализация на **Spring MVC (Servlet)** с **сессионной аутентификацией** через Spring Security.
+
+*   ***Бэкенд:***
+    >  - <sub><sub>**Spring Boot 3** — основа приложения</sub></sub>
+    >  - <sub><sub>**Spring Web MVC** — классический (блокирующий) стек для REST-контроллеров и web-страниц</sub></sub>
+    >  - <sub><sub>**Spring Security** — защита всех ресурсов по умолчанию, доступ к форме логина для всех</sub></sub>
+    >  - <sub><sub>**CSRF-защита** — для write-запросов требуется CSRF-токен; токен получается отдельным запросом на `/csrf`</sub></sub> [1]
+    >  - <sub><sub>**Spring Validation** — валидация входящих DTO (`@Valid`)</sub></sub>
+    >  - <sub><sub>**DTO (Data Transfer Objects)** — контракт между фронтендом и бэкендом</sub></sub>
+
+*   ***Фронтенд:***
+    >  - <sub><sub>**Чистый JavaScript (ES6+)**</sub></sub>
+    >  - <sub><sub>**Fetch API** — общение с бэкендом</sub></sub>
+    >  - <sub><sub>Обёртка `apiFetch()` — всегда отправляет cookie (`credentials: 'same-origin'`) и автоматически добавляет CSRF-заголовок для `POST/PUT/DELETE`</sub></sub> [1]
+    >  - <sub><sub>Если API вернул `401` — фронт перенаправляет на `/login`</sub></sub> [1]
+    >  - <sub><sub>Рекомендованный вызов API через same-origin (без хардкода `http://localhost:8080`), чтобы корректно работали сессия/CSRF</sub></sub> [2]
+
+*   ***Тестирование:***
+    >  - <sub><sub>**@WebMvcTest + MockMvc** — изоляционное тестирование MVC-контроллеров</sub></sub>
+    >  - <sub><sub>**spring-security-test** — проверки доступов (unauthorized/redirect), подстановка `@WithMockUser`, `csrf()` и т.п.</sub></sub>
+    >  - <sub><sub>**JUnit 5, Mockito** — базовый набор для тестов</sub></sub>
+
+*   ***Документация API:***
+    >  - <sub><sub>**Springdoc OpenAPI (Swagger UI)** для генерации документации</sub></sub>
+    >  - <sub><sub>OpenAPI: `http://localhost:8080/v3/api-docs`</sub></sub>
+    >  - <sub><sub>Swagger UI: `http://localhost:8080/swagger-ui/index.html`</sub></sub>
