@@ -21,6 +21,7 @@
         <module>hw09-spring-mvc</module>
         <module>hw10-spring-rest</module>
         <module>hw11-spring-web-flux</module>
+        <module>hw12-spring-security-auth</module>
     </modules>
 
     <properties>

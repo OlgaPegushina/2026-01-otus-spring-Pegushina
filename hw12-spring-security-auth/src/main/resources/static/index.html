@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Библиотека на Spring Boot + JS</title>
+    <style>
+        body { font-family: sans-serif; max-width: 1000px; margin: 2em auto; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 2em; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        form { border: 1px solid #ccc; padding: 1em; margin-bottom: 2em; background-color: #f9f9f9; }
+        form div { margin-bottom: 1em; }
+        label { display: block; margin-bottom: 0.5em; }
+        input[type="text"], select, textarea { width: 100%; padding: 8px; box-sizing: border-box; }
+        button { padding: 10px 15px; cursor: pointer; border-radius: 5px; border: 1px solid #aaa; }
+        .actions button { margin-right: 5px; }
+        #comments-list li { list-style-type: none; border-bottom: 1px solid #eee; padding: 10px 0; }
+        #comments-list li:last-child { border-bottom: none; }
+    </style>
+</head>
+<body>
+
+<!-- список книг по умолчанию -->
+<div id="book-list-view">
+    <h1>Библиотека</h1>
+
+    <nav>
+        <a href="/authors.html">Посмотреть всех авторов</a> |
+        <a href="/genres.html">Посмотреть все жанры</a>
+
+        <button type="button" onclick="doLogout()">Выйти</button>
+    </nav>
+
+    <h2>Список книг</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Название</th>
+            <th>Автор</th>
+            <th>Жанры</th>
+            <th>Действия</th>
+        </tr>
+        </thead>
+        <tbody id="books-table-body"></tbody>
+    </table>
+
+    <h2 id="book-form-title">Добавить новую книгу</h2>
+    <form id="book-form">
+        <input type="hidden" id="book-id" name="id">
+        <div>
+            <label for="title">Название:</label>
+            <input type="text" id="title" name="title" required>
+        </div>
+        <div>
+            <label for="author">Автор:</label>
+            <select id="author" name="authorId" required></select>
+        </div>
+        <div>
+            <label for="genres">Жанры (с Ctrl/Cmd для нескольких):</label>
+            <select id="genres" name="genreIds" multiple required></select>
+        </div>
+        <button type="submit">Сохранить книгу</button>
+        <button type="button" id="cancel-edit-btn" style="display:none;">Отмена</button>
+    </form>
+</div>
+
+<!-- детали книги + комментарии -->
+<div id="book-details-view" style="display:none;">
+    <button id="back-to-list-btn">&larr; Назад к списку книг</button>
+    <h1 id="comments-book-title">Комментарии к книге</h1>
+
+    <h2>Список комментариев</h2>
+    <ul id="comments-list">
+        <!-- сюда JS будет грузить комменты -->
+    </ul>
+
+    <h2 id="comment-form-title">Добавить комментарий</h2>
+    <form id="comment-form">
+        <input type="hidden" id="comment-id">
+        <div>
+            <label for="comment-text">Текст комментария:</label>
+            <textarea id="comment-text" rows="4" required></textarea>
+        </div>
+        <button type="submit">Сохранить комментарий</button>
+        <button type="button" id="cancel-comment-edit-btn" style="display:none;">Отмена</button>
+    </form>
+</div>
+
+<script src="/js/main.js"></script>
+
+</body>
+</html>
