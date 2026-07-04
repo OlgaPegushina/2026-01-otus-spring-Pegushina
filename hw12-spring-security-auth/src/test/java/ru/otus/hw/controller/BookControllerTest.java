@@ -4,13 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.otus.hw.config.SecurityConfig;
 import ru.otus.hw.dto.AuthorDto;
 import ru.otus.hw.dto.BookCreateDto;
 import ru.otus.hw.dto.BookDto;
@@ -29,7 +27,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -40,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @DisplayName("Контроллер для работы с книгами")
 @WebMvcTest(BookController.class)
-@Import(SecurityConfig.class)
+@AutoConfigureMockMvc(addFilters = false)
 class BookControllerTest {
 
     @Autowired
@@ -54,7 +51,6 @@ class BookControllerTest {
 
     @Test
     @DisplayName("должен возвращать корректный список книг")
-    @WithMockUser
     void shouldReturnCorrectBooksList() throws Exception {
         var author = new AuthorDto(1L, "Author");
         var genre = new GenreDto(1L, "Genre");
@@ -72,7 +68,6 @@ class BookControllerTest {
 
     @Test
     @DisplayName("должен корректно создавать новую книгу")
-    @WithMockUser
     void shouldCreateBook() throws Exception {
         var author = new AuthorDto(1L, "Author");
         var genre = new GenreDto(1L, "Genre");
@@ -82,7 +77,6 @@ class BookControllerTest {
         given(bookService.create(any(BookCreateDto.class))).willReturn(expectedBook);
 
         mvc.perform(post("/books")
-                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createDto)))
                 .andExpect(status().isCreated())
@@ -93,7 +87,6 @@ class BookControllerTest {
 
     @Test
     @DisplayName("должен корректно обновлять книгу")
-    @WithMockUser
     void shouldUpdateBook() throws Exception {
         var author = new AuthorDto(1L, "Author");
         var genre = new GenreDto(1L, "Genre");
@@ -103,7 +96,6 @@ class BookControllerTest {
         given(bookService.update(any(BookUpdateDto.class))).willReturn(expectedBook);
 
         mvc.perform(put("/books")
-                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateDto)))
                 .andExpect(status().isOk())
@@ -114,11 +106,10 @@ class BookControllerTest {
 
     @Test
     @DisplayName("должен корректно удалять книгу по ID")
-    @WithMockUser
     void shouldDeleteBook() throws Exception {
         long bookId = 1L;
 
-        mvc.perform(delete("/books/{bookId}", bookId).with(csrf()))
+        mvc.perform(delete("/books/{bookId}", bookId))
                 .andExpect(status().isNoContent());
 
         verify(bookService, times(1)).deleteById(eq(bookId));
@@ -126,7 +117,6 @@ class BookControllerTest {
 
     @Test
     @DisplayName("должен возвращать книгу по ID")
-    @WithMockUser
     void shouldReturnBookById() throws Exception {
         long bookId = 1L;
         var author = new AuthorDto(1L, "Author");
@@ -136,14 +126,12 @@ class BookControllerTest {
         given(bookService.findById(eq(bookId))).willReturn(expectedBook);
 
         mvc.perform(get("/books/{bookId}", bookId))
-
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(expectedBook)));
     }
 
     @Test
     @DisplayName("должен возвращать статус 404, если книга не найдена")
-    @WithMockUser
     void shouldReturnNotFoundWhenBookDoesNotExist() throws Exception {
         long nonExistentId = 999L;
         String errorMessage = "Book with id " + nonExistentId + " not found";
@@ -159,12 +147,10 @@ class BookControllerTest {
 
     @Test
     @DisplayName("должен возвращать статус 400 при ошибке валидации (создание книги)")
-    @WithMockUser
     void shouldReturnBadRequestOnValidationFailure() throws Exception {
         var invalidCreateDto = new BookCreateDto("", 1L, List.of(1L));
 
         mvc.perform(post("/books")
-                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidCreateDto)))
                 .andExpect(status().isBadRequest())
@@ -178,7 +164,6 @@ class BookControllerTest {
 
     @Test
     @DisplayName("должен возвращать статус 500 при непредвиденной ошибке сервера")
-    @WithMockUser
     void shouldReturnInternalServerErrorOnUnexpectedError() throws Exception {
         String errorMessage = "Something went terribly wrong";
         given(bookService.findAll()).willThrow(new RuntimeException(errorMessage));
