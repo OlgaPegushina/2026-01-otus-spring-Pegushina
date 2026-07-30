@@ -25,6 +25,7 @@ async function apiFetch(url, options = {}) {
   }
 
   const r = await fetch(url, opts);
+  console.log('apiFetch', method, url, '->', r.status, 'redirected=', r.redirected, 'finalUrl=', r.url);
 
   if (r.status === 401) {
     window.location = '/login';
@@ -35,14 +36,12 @@ async function apiFetch(url, options = {}) {
 }
 
 async function extractErrorMessage(response, fallback = 'Ошибка запроса') {
-  // пробуем JSON
   try {
     const data = await response.clone().json();
     if (data?.errors?.length) return data.errors[0].defaultMessage || fallback;
     if (data?.message) return data.message;
     return fallback;
   } catch (_) {
-    // пробуем text
     try {
       const text = await response.clone().text();
       return text ? text.slice(0, 300) : fallback;
@@ -97,7 +96,6 @@ async function initGenresPage() {
 }
 
 function initBookPage() {
-  // same-origin: не хардкодим localhost, иначе сессия/CSRF могут не работать
   const API_BASE_URL = '';
 
   let currentBookId = null;
@@ -228,16 +226,29 @@ function initBookPage() {
         body: JSON.stringify(bookData)
       });
 
-      if (!response.ok) {
-        throw new Error(await extractErrorMessage(response, 'Ошибка валидации на сервере'));
+      if (response.ok) {
+         resetBookForm();
+         await fetchAndRenderBooks();
+         return;
       }
 
-      resetBookForm();
-      await fetchAndRenderBooks();
+      if (response.status === 400) {
+        throw new Error("Ошибка валидации на сервере");
+      }
+
+      if (response.status === 403) {
+        throw new Error("Недостаточно прав для изменения книги");
+      }
+
+      if (response.status === 401) {
+        throw new Error("Нужно войти в систему");
+      }
+
+      throw new Error(`Ошибка сервера: ${response.status}`);
     } catch (error) {
-      console.error('Ошибка при сохранении книги:', error);
-      alert(`Ошибка: ${error.message}`);
-    }
+          console.error('Ошибка при сохранении книги:', error);
+          alert(`Ошибка: ${error.message}`);
+      }
   });
 
   window.deleteBook = async function (id) {
@@ -246,11 +257,30 @@ function initBookPage() {
     try {
       const response = await apiFetch(`${API_BASE_URL}/books/${id}`, { method: 'DELETE' });
 
-      if (!response.ok) {
-        throw new Error(await extractErrorMessage(response, 'Ошибка удаления'));
+      if (response.ok) {
+        await fetchAndRenderBooks();
+        return;
       }
 
-      await fetchAndRenderBooks();
+      const serverMsg = await extractErrorMessage(response, null);
+
+      if (response.status === 403) {
+        throw new Error(serverMsg || "Недостаточно прав для удаления книги");
+      }
+
+      if (response.status === 401) {
+        throw new Error(serverMsg || "Нужно войти в систему");
+      }
+
+      if (response.status === 404) {
+        throw new Error(serverMsg || "Книга не найдена (возможно, уже удалена)");
+      }
+
+      if (response.status === 400) {
+        throw new Error(serverMsg || "Некорректный запрос");
+      }
+
+      throw new Error(serverMsg || `Ошибка удаления: ${response.status}`);
     } catch (error) {
       console.error('Не удалось удалить книгу:', error);
       alert(`Не удалось удалить книгу: ${error.message}`);
@@ -358,6 +388,13 @@ function initBookPage() {
         body: JSON.stringify(commentData)
       });
 
+      if (response.status === 403) {
+        alert('Нельзя редактировать чужой комментарий');
+        resetCommentForm();
+        await fetchAndRenderComments(currentBookId);
+        return;
+      }
+
       if (!response.ok) {
         throw new Error(await extractErrorMessage(response, 'Неизвестная ошибка сервера'));
       }
@@ -375,6 +412,13 @@ function initBookPage() {
 
     try {
       const response = await apiFetch(`${API_BASE_URL}/comments/${commentId}`, { method: 'DELETE' });
+
+      if (response.status === 403) {
+        alert('Нельзя удалять чужой комментарий');
+        resetCommentForm();
+        await fetchAndRenderComments(currentBookId);
+        return;
+      }
 
       if (!response.ok) {
         throw new Error(await extractErrorMessage(response, 'Не удалось удалить комментарий'));

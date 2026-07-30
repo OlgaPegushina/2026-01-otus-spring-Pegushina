@@ -164,3 +164,34 @@
     >  - <sub><sub>**Springdoc OpenAPI (Swagger UI)** для генерации документации</sub></sub>
     >  - <sub><sub>OpenAPI: `http://localhost:8080/v3/api-docs`</sub></sub>
     >  - <sub><sub>Swagger UI: `http://localhost:8080/swagger-ui/index.html`</sub></sub>
+
+*   ## **Модуль hw13-spring-security-auth**
+        CRUD-приложение с динамическим Web UI на JavaScript и REST API. Реализация на **Spring MVC (Servlet)** с **сессионной аутентификацией** через Spring Security.
+*   ***Бэкенд:***
+    >  - <sub><sub>**Spring Boot 3** — основа приложения</sub></sub>
+    >  - <sub><sub>**Spring Web MVC** — REST-контроллеры и web-страницы (Servlet stack)</sub></sub>
+    >  - <sub><sub>**Spring Security**: сессионная аутентификация через `formLogin` (cookie-based session).
+    >  - <sub><sub>**Авторизация**:
+    >  - <sub><sub>- **URL-based** — доступ к страницам и API только для аутентифицированных пользователей (кроме `/login` и статических ресурсов)
+    >  - <sub><sub>- **Role/ownership-based** — на уровне доменного объекта `Comment`: обновление и удаление разрешены только пользователю с ролью `ADMIN` или владельцу комментария (`@PreAuthorize` + `commentSecurity.isOwner(...)`)
+    >  - <sub><sub>**Registration (signup)** — публичные endpoints: `GET /register`, `POST /register` (создание пользователя)</sub></sub>
+    >  - <sub><sub>**PasswordEncoder (BCrypt)** — хранение паролей в виде хеша</sub></sub>
+    >  - <sub><sub>**CSRF-защита** — для write-запросов требуется CSRF-токен; токен получается отдельным запросом на `/csrf`</sub></sub>
+    >  - <sub><sub>**Spring Validation** — валидация формы регистрации через `@Valid` (`RegisterRequestDto`)</sub></sub>
+    >  - <sub><sub>**DTO** — контракт между UI/JS и бэкендом</sub></sub>
+*   ***Фронтенд:***
+    >  - <sub><sub>**Thymeleaf** — страницы `/login`, `/register` (формы)</sub></sub>
+    >  - <sub><sub>**Чистый JavaScript (ES6+)** — динамический UI</sub></sub>
+    >  - <sub><sub>**Fetch API** — общение с REST API</sub></sub>
+    >  - <sub><sub>Обёртка `apiFetch()` — всегда отправляет cookie (`credentials: 'same-origin'`) и автоматически добавляет CSRF-заголовок для `POST/PUT/DELETE`</sub></sub>
+    >  - <sub><sub>Если API вернул `401` — фронт перенаправляет на `/login`</sub></sub>
+    >  - <sub><sub>Рекомендованный вызов API через same-origin (без `http://localhost:8080`), чтобы корректно работали сессия/CSRF</sub></sub>
+*   ***Тестирование:***
+    >  - <sub><sub>**@WebMvcTest + MockMvc** — изоляционные тесты MVC-контроллеров</sub></sub>
+    >  - <sub><sub>**spring-security-test** — проверки доступов (permitAll/unauthorized/forbidden), `@WithMockUser`, `csrf()`</sub></sub>
+    >  - <sub><sub>**SecurityRegistrationControllerTest** — проверки: `GET /register` (200 для анонима), `POST /register` без CSRF (403), `POST /register` с CSRF (302 redirect)</sub></sub>
+    >  - <sub><sub>**JUnit 5, Mockito** — базовый набор для тестов</sub></sub>
+*   ***Документация API:***
+    >  - <sub><sub>**Springdoc OpenAPI (Swagger UI)**</sub></sub>
+    >  - <sub><sub>OpenAPI: `http://localhost:8080/v3/api-docs`</sub></sub>
+    >  - <sub><sub>Swagger UI: `http://localhost:8080/swagger-ui/index.html`</sub></sub>

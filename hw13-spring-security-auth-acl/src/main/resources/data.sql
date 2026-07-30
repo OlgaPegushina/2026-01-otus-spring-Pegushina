@@ -13,9 +13,35 @@ values (1, 1),   (1, 2),
        (2, 3),   (2, 4),
        (3, 5),   (3, 6);
 
-insert into comments(text, book_id)
-values ('Comment_1', 1), ('Comment_2', 1), ('Comment_3', 3);
+insert into comments(text, book_id, created_by)
+values ('Comment_1', 1, 'user'), ('Comment_2', 1, 'user'), ('Comment_3', 3, 'user');
 
 -- пароль: password
 insert into users(username, password, enabled)
-values ('user', '$2a$10$yID4fl/.bvjIhudkpmjCyuFBgaYd9maPRuYqHik0hg0ysEP6qVzVK', true);
+values ('user', '$2a$10$yID4fl/.bvjIhudkpmjCyuFBgaYd9maPRuYqHik0hg0ysEP6qVzVK', true),
+('user2', '$2a$10$yID4fl/.bvjIhudkpmjCyuFBgaYd9maPRuYqHik0hg0ysEP6qVzVK', true);
+
+-- пароль: password, если при первом запуске нет админа, то пользователь создается автоматически
+--insert into users(username, password, enabled)
+--values ('admin2', '$2a$10$yID4fl/.bvjIhudkpmjCyuFBgaYd9maPRuYqHik0hg0ysEP6qVzVK', true);
+
+insert into roles(name)
+values ('ROLE_USER'), ('ROLE_ADMIN');
+
+insert into user_roles(user_id, role_id)
+select u.id, r.id
+from users u
+join roles r on r.name = 'ROLE_USER'
+where u.username = 'user';
+
+insert into user_roles(user_id, role_id)
+select u.id, r.id
+from users u
+join roles r on r.name = 'ROLE_USER'
+where u.username = 'user2';
+
+insert into user_roles(user_id, role_id)
+select u.id, r.id
+from users u
+join roles r on r.name = 'ROLE_ADMIN'
+where u.username = 'admin';

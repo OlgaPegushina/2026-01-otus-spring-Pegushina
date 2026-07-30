@@ -9,6 +9,8 @@ spring:
     defer-datasource-initialization: true
   datasource:
     url: jdbc:h2:mem:maindb
+    username: 123
+    password: 123
 
   sql:
     init:
@@ -19,6 +21,7 @@ spring:
   h2:
     console:
       enabled: true
+      path: /h2-console
 
   thymeleaf:
     cache: false
@@ -29,6 +32,12 @@ spring:
 
 logging:
   level:
-    org:
-      springframework:
-        security: TRACE
+    org.springframework.security: TRACE
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+    org.springframework.transaction: TRACE
+
+app:
+  admin:
+    username: admin
+    password: password

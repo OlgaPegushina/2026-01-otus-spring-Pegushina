@@ -3,6 +3,7 @@ package ru.otus.hw.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,8 +38,9 @@ public class CommentController {
 
     @PostMapping("/comments")
     @ResponseStatus(HttpStatus.CREATED)
-    public CommentDto createComment(@Valid @RequestBody CommentCreateDto commentCreateDto) {
-        return commentService.create(commentCreateDto);
+    public CommentDto createComment(@Valid @RequestBody CommentCreateDto dto,
+                                    Authentication authentication) {
+        return commentService.create(dto, authentication.getName());
     }
 
     @PutMapping("/comments")

@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@DisplayName("Контроллер для работы с комментариями")
+@DisplayName("Контроллер c проверкой безопасности для работы с комментариями")
 @WebMvcTest(CommentController.class)
 @Import(SecurityConfig.class)
 public class SecurityCommentControllerTest {
@@ -46,17 +46,33 @@ public class SecurityCommentControllerTest {
     private CommentService commentService;
 
     @Test
-    @DisplayName("POST /comments — без аутентификации возвращает 401")
-    void addCommentShouldReturn401WhenNotAuthenticated() throws Exception {
-        mvc.perform(post("/comments")
-                        .with(csrf())
-                        .param("bookId", "1")
-                        .param("text", "Brand new comment"))
+    @DisplayName("GET /comments/book/{id} — без аутентификации возвращает 401")
+    void getCommentsForBookShouldReturn401WhenNotAuthenticated() throws Exception {
+        mvc.perform(get("/comments/book/1"))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
-    @DisplayName("PUT /books — без аутентификации возвращает 401")
+    @DisplayName("GET /comments/{id} — без аутентификации возвращает 401")
+    void getCommentByIdShouldReturn401WhenNotAuthenticated() throws Exception {
+        mvc.perform(get("/comments/1"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("POST /comments — без аутентификации возвращает 401")
+    void addCommentShouldReturn401WhenNotAuthenticated() throws Exception {
+        var dto = new CommentCreateDto("Brand new comment", 1L);
+
+        mvc.perform(post("/comments")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("PUT /comments — без аутентификации возвращает 401")
     void updateCommentShouldReturn401WhenNotAuthenticated() throws Exception {
         mvc.perform(put("/comments")
                         .with(csrf())
@@ -74,14 +90,48 @@ public class SecurityCommentControllerTest {
     }
 
     @Test
+    @DisplayName("POST /comments — с аутентификацией, но без CSRF возвращает 403")
+    @WithMockUser(username = "user")
+    void addCommentShouldReturn403WhenNoCsrf() throws Exception {
+        var dto = new CommentCreateDto("Brand new comment", 1L);
+
+        mvc.perform(post("/comments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("PUT /comments — с аутентификацией, но без CSRF возвращает 403")
+    @WithMockUser
+    void updateCommentShouldReturn403WhenNoCsrf() throws Exception {
+        var dto = new CommentUpdateDto(1L, "Updated text");
+
+        mvc.perform(put("/comments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("DELETE /comments/{id} — с аутентификацией, но без CSRF возвращает 403")
+    @WithMockUser
+    void deleteCommentShouldReturn403WhenNoCsrf() throws Exception {
+        mvc.perform(delete("/comments/1"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     @DisplayName("должен возвращать все комментарии для книги")
     @WithMockUser
     void shouldGetAllCommentsForBook() throws Exception {
         long bookId = 1L;
+
         List<CommentDto> comments = List.of(
                 new CommentDto(1L, "Comment text 1"),
                 new CommentDto(2L, "Comment text 2")
         );
+
         given(commentService.findAllByBookId(eq(bookId))).willReturn(comments);
 
         mvc.perform(get("/comments/book/{bookId}", bookId))
@@ -95,6 +145,7 @@ public class SecurityCommentControllerTest {
     @WithMockUser
     void shouldGetCommentById() throws Exception {
         long commentId = 1L;
+
         var expectedComment = new CommentDto(commentId, "A specific comment");
         given(commentService.findById(eq(commentId))).willReturn(expectedComment);
 
@@ -104,14 +155,16 @@ public class SecurityCommentControllerTest {
     }
 
     @Test
-    @DisplayName("должен корректно создавать новый комментарий")
-    @WithMockUser
+    @DisplayName("должен корректно создавать новый комментарий и передавать username")
+    @WithMockUser(username = "user")
     void shouldCreateComment() throws Exception {
         long bookId = 1L;
+
         var createDto = new CommentCreateDto("Brand new comment", bookId);
         var expectedComment = new CommentDto(1L, "Brand new comment");
 
-        given(commentService.create(any(CommentCreateDto.class))).willReturn(expectedComment);
+        given(commentService.create(any(CommentCreateDto.class), eq("user")))
+                .willReturn(expectedComment);
 
         mvc.perform(post("/comments")
                         .with(csrf())
@@ -120,7 +173,7 @@ public class SecurityCommentControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(content().json(objectMapper.writeValueAsString(expectedComment)));
 
-        verify(commentService, times(1)).create(any(CommentCreateDto.class));
+        verify(commentService, times(1)).create(any(CommentCreateDto.class), eq("user"));
     }
 
     @Test
@@ -128,6 +181,7 @@ public class SecurityCommentControllerTest {
     @WithMockUser
     void shouldUpdateComment() throws Exception {
         long commentId = 1L;
+
         var updateDto = new CommentUpdateDto(commentId, "Updated text");
         var expectedComment = new CommentDto(commentId, "Updated text");
 

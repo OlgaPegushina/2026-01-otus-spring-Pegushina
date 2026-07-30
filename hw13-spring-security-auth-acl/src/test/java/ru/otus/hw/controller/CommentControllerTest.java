@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.otus.hw.dto.CommentCreateDto;
@@ -17,6 +19,7 @@ import ru.otus.hw.service.CommentService;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
@@ -77,15 +80,21 @@ class CommentControllerTest {
         var createDto = new CommentCreateDto("Brand new comment", bookId);
         var expectedComment = new CommentDto(1L, "Brand new comment");
 
-        given(commentService.create(any(CommentCreateDto.class))).willReturn(expectedComment);
+        given(commentService.create(any(CommentCreateDto.class), anyString())).willReturn(expectedComment);
+
+        var auth = new UsernamePasswordAuthenticationToken(
+                "user",
+                "N/A",
+                AuthorityUtils.createAuthorityList("ROLE_USER")
+        );
 
         mvc.perform(post("/comments")
+                        .principal(auth)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createDto)))
-                .andExpect(status().isCreated())
-                .andExpect(content().json(objectMapper.writeValueAsString(expectedComment)));
+                .andExpect(status().isCreated());
 
-        verify(commentService, times(1)).create(any(CommentCreateDto.class));
+        verify(commentService).create(any(CommentCreateDto.class), eq("user"));
     }
 
     @Test

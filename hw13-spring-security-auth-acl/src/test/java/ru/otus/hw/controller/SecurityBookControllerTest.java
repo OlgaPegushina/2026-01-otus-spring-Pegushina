@@ -75,7 +75,7 @@ public class SecurityBookControllerTest {
     @Test
     @DisplayName("PUT /books — без аутентификации возвращает 401")
     void updateBookShouldReturn401WhenNotAuthenticated() throws Exception {
-        mvc.perform(put("/books/1")
+        mvc.perform(put("/books")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
@@ -110,7 +110,7 @@ public class SecurityBookControllerTest {
 
     @Test
     @DisplayName("должен корректно создавать новую книгу")
-    @WithMockUser
+    @WithMockUser(username = "user", roles = "ADMIN")
     void shouldCreateBook() throws Exception {
         var author = new AuthorDto(1L, "Author");
         var genre = new GenreDto(1L, "Genre");
@@ -131,7 +131,7 @@ public class SecurityBookControllerTest {
 
     @Test
     @DisplayName("должен корректно обновлять книгу")
-    @WithMockUser
+    @WithMockUser(username = "user", roles = "ADMIN")
     void shouldUpdateBook() throws Exception {
         var author = new AuthorDto(1L, "Author");
         var genre = new GenreDto(1L, "Genre");
@@ -152,7 +152,7 @@ public class SecurityBookControllerTest {
 
     @Test
     @DisplayName("должен корректно удалять книгу по ID")
-    @WithMockUser
+    @WithMockUser(username = "user", roles = "ADMIN")
     void shouldDeleteBook() throws Exception {
         long bookId = 1L;
 
@@ -177,5 +177,48 @@ public class SecurityBookControllerTest {
 
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(expectedBook)));
+    }
+
+    @Test
+    @DisplayName("POST /books — с ролью USER возвращает 403")
+    @WithMockUser(roles = "USER")
+    void createBookShouldReturn403WhenUserNotAdmin() throws Exception {
+        mvc.perform(post("/books")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(
+                                new BookCreateDto("Title", 1L, List.of(1L)))))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("PUT /books — с ролью USER возвращает 403")
+    @WithMockUser(roles = "USER")
+    void updateBookShouldReturn403WhenUserNotAdmin() throws Exception {
+        mvc.perform(put("/books")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(
+                                new BookUpdateDto(1L, "Title", 1L, List.of(1L)))))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("DELETE /books/{id} — с ролью USER возвращает 403")
+    @WithMockUser(roles = "USER")
+    void deleteBookShouldReturn403WhenUserNotAdmin() throws Exception {
+        mvc.perform(delete("/books/1").with(csrf()))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("POST /books — ADMIN без CSRF возвращает 403")
+    @WithMockUser(roles = "ADMIN")
+    void createBookShouldReturn403WhenNoCsrf() throws Exception {
+        mvc.perform(post("/books")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(
+                                new BookCreateDto("Title", 1L, List.of(1L)))))
+                .andExpect(status().isForbidden());
     }
 }
