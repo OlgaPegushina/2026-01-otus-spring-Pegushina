@@ -8,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.otus.hw.exception.DuplicateKeyException;
 import ru.otus.hw.exception.EntityNotFoundException;
 
 import java.util.stream.Collectors;
@@ -25,7 +26,7 @@ public class ErrorHandler {
                 .build();
     }
 
-    @ExceptionHandler({MethodArgumentNotValidException.class, IllegalArgumentException.class})
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiError handleInvalidArguments(MethodArgumentNotValidException ex) {
         String errorMessage = ex.getBindingResult().getFieldErrors().stream()
@@ -36,6 +37,16 @@ public class ErrorHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .reason("Ошибка валидации")
                 .message(errorMessage)
+                .build();
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleIllegalArgument(IllegalArgumentException ex) {
+        return ApiError.builder()
+                .status(HttpStatus.BAD_REQUEST)
+                .reason("Некорректный запрос")
+                .message(ex.getMessage())
                 .build();
     }
 

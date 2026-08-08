@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.hw.dto.RegisterRequestDto;
 import ru.otus.hw.exception.EntityNotFoundException;
-import ru.otus.hw.exception.handler.DuplicateKeyException;
+import ru.otus.hw.exception.DuplicateKeyException;
 import ru.otus.hw.model.AppUser;
 import ru.otus.hw.model.Role;
 import ru.otus.hw.model.RoleName;
