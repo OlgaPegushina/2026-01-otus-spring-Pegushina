@@ -1,4 +1,4 @@
-package ru.otus.hw.processor; // или туда, где у тебя лежат процессоры
+package ru.otus.hw.processor;
 
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
