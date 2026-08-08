@@ -1,0 +1,56 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:maindb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    defer-datasource-initialization: true
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: false
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+
+  data:
+    mongodb:
+      database: library_migrate
+
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: always
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  output:
+    ansi:
+      enabled: ALWAYS
+
+  main:
+    allow-bean-definition-overriding: true
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: ERROR
+    org.springframework.transaction: ERROR
+    org.springframework.batch: INFO
+
+de:
+  flapdoodle:
+    mongodb:
+      embedded:
+        version: 7.0.5

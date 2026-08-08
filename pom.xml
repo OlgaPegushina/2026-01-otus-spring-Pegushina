@@ -23,6 +23,7 @@
         <module>hw11-spring-web-flux</module>
         <module>hw12-spring-security-auth</module>
         <module>hw13-spring-security-auth-acl</module>
+        <module>hw14-spring-batch</module>
     </modules>
 
     <properties>
