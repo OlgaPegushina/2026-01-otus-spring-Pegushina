@@ -195,3 +195,38 @@
     >  - <sub><sub>**Springdoc OpenAPI (Swagger UI)**</sub></sub>
     >  - <sub><sub>OpenAPI: `http://localhost:8080/v3/api-docs`</sub></sub>
     >  - <sub><sub>Swagger UI: `http://localhost:8080/swagger-ui/index.html`</sub></sub>
+
+*   ## **Модуль hw14-spring-batch**
+        Batch-утилита миграции данных из **реляционной БД (JPA)** в **MongoDB** на базе **Spring Batch**.
+        Миграция выполняется job’ом `migrateJob`, связи сущностей сохраняются (книги мигрируются после авторов и жанров).
+
+*   ***Стек:***
+    >  - <sub><sub>**Spring Boot 3**</sub></sub>
+    >  - <sub><sub>**Spring Batch**</sub></sub>
+    >  - <sub><sub>**Spring Data JPA** — `JpaPagingItemReader`</sub></sub>
+    >  - <sub><sub>**Spring Data MongoDB** — `MongoItemWriter`</sub></sub>
+
+*   ***Схема выполнения (Job/Flow/Steps):***
+    >  - <sub><sub>**migrateJob** запускает `mainFlow`</sub></sub>
+    >  - <sub><sub>`mainFlow`: `cleanupStep` - `parallelFlow` - `booksStep`</sub></sub>
+    >  - <sub><sub>`parallelFlow`: параллельное выполнение `authorsStep` и `genresStep` через `split`</sub></sub>
+
+*   ***Steps:***
+    >  - <sub><sub>**cleanupStep (tasklet)** — удаляет коллекции Mongo: `books`, `authors`, `genres`</sub></sub>
+    >  - <sub><sub>**authorsStep (chunk)** — читает `AuthorEntity` из JPA, пишет `AuthorDoc` в Mongo (`authors`)</sub></sub>
+    >  - <sub><sub>**genresStep (chunk)** — читает `GenreEntity` из JPA, пишет `GenreDoc` в Mongo (`genres`)</sub></sub>
+    >  - <sub><sub>**booksStep (chunk)** — читает `BookEntity`, обрабатывает через `bookProcessor`, пишет `BookDoc` в Mongo (`books`)</sub></sub>
+
+*   ***Chunk processing:***
+    >  - <sub><sub>Размер чанка: `CHUNK_SIZE = 100`</sub></sub>
+    >  - <sub><sub>Пайплайн: `reader - processor - writer`</sub></sub>
+    >  - <sub><sub>Readers (`authorReader/genreReader/bookReader`) — `JpaPagingItemReader` с сортировкой `order by id`</sub></sub>
+
+*   ***Параллельность:***
+    >  - <sub><sub>`SimpleAsyncTaskExecutor("migrate-")`, `concurrencyLimit = 2`</sub></sub>
+    >  - <sub><sub>Авторы и жанры переносятся параллельно, книги — после них</sub></sub>
+
+*   ***Ответственности компонентов:***
+    >  - <sub><sub>`AuthorMapper`, `GenreMapper` — преобразование Entity в Doc</sub></sub>
+    >  - <sub><sub>`BookProcessor` — преобразование BookEntity в BookDoc и восстановление ссылок на автора/жанр</sub></sub>
+    >  - <sub><sub>`MongoItemWriter` — запись в целевые коллекции Mongo</sub></sub>
