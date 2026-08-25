@@ -230,3 +230,26 @@
     >  - <sub><sub>`AuthorMapper`, `GenreMapper` — преобразование Entity в Doc</sub></sub>
     >  - <sub><sub>`BookProcessor` — преобразование BookEntity в BookDoc и восстановление ссылок на автора/жанр</sub></sub>
     >  - <sub><sub>`MongoItemWriter` — запись в целевые коллекции Mongo</sub></sub>
+
+*   ## **Модуль hw15-spring-integration**
+        Реализация обработки доменной сущности (заказ на доставку еды) через каналы и потоки Spring Integration с применением паттернов интеграции корпоративных приложений (EIP).
+*   ***Ядро интеграции (Spring Integration):***
+    >- <sub><sub>**Spring Boot** </sub></sub>
+    >- <sub><sub>**Spring Integration (Java DSL)** для декларативного описания потоков обработки (`IntegrationFlow`)</sub></sub>
+    >- <sub><sub>**Messaging Gateway** (`@MessagingGateway`) как точка входа для запуска потока</sub></sub>
+    >- <sub><sub>**Message Channels** (`DirectChannel`) для передачи сообщений между этапами обработки</sub></sub>
+*   ***Применённые EIP-паттерны:***
+    >- <sub><sub>**Router** для маршрутизации по способу оплаты (`CARD`/`CASH`) и валидности заказа</sub></sub>
+    >- <sub><sub>**Splitter & Aggregator** для проверки доступности каждой позиции заказа и сборки результата</sub></sub>
+    >- <sub><sub>**Filter** для отсеивания заказов с недоступными товарами (`discardChannel`)</sub></sub>
+    >- <sub><sub>**Publish-Subscribe Channel** для параллельной отправки заказа на кухню и в доставку</sub></sub>
+    >- <sub><sub>**Content Enricher** для обогащения заголовков сообщения (`enrichHeaders`)</sub></sub>
+    >- <sub><sub>**Messaging Error Handler** для централизованной обработки исключений через `errorChannel`</sub></sub>
+*   ***Доменная модель (Domain):***
+    >- <sub><sub>**Immutable-объекты** (`record` и Lombok `@Value`) для потокобезопасной передачи данных в каналах</sub></sub>
+    >- <sub><sub>**Lombok** (`@Builder`, `@With`) для удобного создания и копирования неизменяемых сущностей</sub></sub>
+    >- <sub><sub>**Сервисный слой** (`@Service`) в качестве обработчиков (`Service Activator`) для бизнес-логики</sub></sub>
+*   ***Тестирование:***
+    >- <sub><sub>**@SpringBootTest** для полноценного интеграционного тестирования всего потока через гейтвей</sub></sub>
+    >- <sub><sub>**@MockitoBean, @MockitoSpyBean** для подмены и отслеживания за поведением сервисов</sub></sub>
+    >- <sub><sub>**JUnit 5, Mockito** — для написания тестов, проверки взаимодействий (`verify`) и результатов</sub></sub>
