@@ -253,3 +253,111 @@
     >- <sub><sub>**@SpringBootTest** для полноценного интеграционного тестирования всего потока через гейтвей</sub></sub>
     >- <sub><sub>**@MockitoBean, @MockitoSpyBean** для подмены и отслеживания за поведением сервисов</sub></sub>
     >- <sub><sub>**JUnit 5, Mockito** — для написания тестов, проверки взаимодействий (`verify`) и результатов</sub></sub>
+
+*   ## **Модуль hw16-spring-actuator**
+        Библиотечный REST-сервис на HATEOAS-принципах через Spring Data REST, с подключённым Spring Boot Actuator для мониторинга: метрики, healthchecks и logfile.
+
+*   ## **Технологический стек**
+    >- <sub><sub>**Spring Boot 3.x / Java 21**</sub></sub>
+    >- <sub><sub>**Spring Data JPA** — доступ к данным</sub></sub>
+    >- <sub><sub>**H2 (in-memory)** — БД для разработки/тестов</sub></sub>
+    >- <sub><sub>**Spring Data REST** — HATEOAS-ориентированные REST-эндпоинты поверх репозиториев</sub></sub>
+    >- <sub><sub>**Spring Boot Actuator** — health, metrics, logfile, prometheus</sub></sub>
+    >- <sub><sub>**Micrometer + Prometheus Registry** — экспорт метрик в Prometheus-формате</sub></sub>
+    >- <sub><sub>**spring-data-rest-hal-explorer** — удобный просмотр HAL-ссылок</sub></sub>
+
+*   ## **HATEOAS и Spring Data REST**
+    >- <sub><sub>**spring-boot-starter-data-rest** — автоматическая публикация репозиториев как REST-ресурсов</sub></sub>
+    >- <sub><sub>**HAL**-представление ресурсов: ответы содержат `_links` и навигацию по сущностям</sub></sub>
+    >- <sub><sub>**base-path** для Data REST: `spring.data.rest.base-path=/datarest`</sub></sub>
+    >
+    >- <sub><sub>Примеры URL (после старта приложения):</sub></sub>
+       >  - <sub><sub>`/datarest` — корень API репозиториев</sub></sub>
+    >  - <sub><sub>`/datarest/library-books` — коллекция книг</sub></sub>
+    >  - <sub><sub>`/datarest/library-authors` — коллекция авторов</sub></sub>
+    >  - <sub><sub>`/datarest/library-genres` — коллекция жанров</sub></sub>
+
+*   ## **Actuator: мониторинг и прозрачность**
+    >- <sub><sub>**spring-boot-starter-actuator** — включает управляемые эндпоинты мониторинга</sub></sub>
+    >- <sub><sub>Экспонирование эндпоинтов через HTTP:</sub></sub>
+       >
+       >  ```yml
+    >  management:
+    >    endpoints:
+    >      web:
+    >        exposure:
+    >          include: health, metrics, loggers, logfile, prometheus
+    >  ```
+    >
+    >- <sub><sub>Ключевые эндпоинты:</sub></sub>
+       >  - <sub><sub>`/actuator/health` — состояние приложения и компонентов</sub></sub>
+    >  - <sub><sub>`/actuator/metrics` — список метрик</sub></sub>
+    >  - <sub><sub>`/actuator/metrics/{name}` — конкретная метрика</sub></sub>
+    >  - <sub><sub>`/actuator/prometheus` — метрики в формате Prometheus</sub></sub>
+    >  - <sub><sub>`/actuator/logfile` — просмотр текущего файла логов</sub></sub>
+    >  - <sub><sub>`/actuator/loggers` — управление уровнями логирования (при необходимости)</sub></sub>
+
+*   ## **Метрики (Micrometer + Prometheus)**
+    >- <sub><sub>**micrometer-registry-prometheus** — добавляет `prometheus` endpoint в Actuator</sub></sub>
+    >- <sub><sub>Назначение:</sub></sub>
+       >  - <sub><sub>сбор метрик JVM/HTTP/логирования/пула потоков и т.д.</sub></sub>
+    >
+    >- <sub><sub>Проверка:</sub></sub>
+       >  - <sub><sub>`GET /actuator/prometheus`</sub></sub>
+
+*   ## **Healthchecks и кастомный HealthIndicator**
+    >- <sub><sub>Показ деталей healthcheck:</sub></sub>
+       >
+       >  ```yml
+    >  management:
+    >    endpoint:
+    >      health:
+    >        show-details: always
+    >        show-components: always
+    >  ```
+    >
+    >- <sub><sub>Кастомный индикатор: `LibraryCatalogHealthIndicator`</sub></sub>
+       >  - <sub><sub>Проверяет заполненность каталога по `count()` в таблицах books/authors/genres</sub></sub>
+    >  - <sub><sub>Статусы:</sub></sub>
+         >    - <sub><sub>`UP` — все таблицы непустые</sub></sub>
+    >    - <sub><sub>`DEGRADED` — каталог доступен, но одна/несколько таблиц пустые</sub></sub>
+    >
+    >- <sub><sub>Проверка:</sub></sub>
+       >  - <sub><sub>`GET /actuator/health` — ищем секцию компонента кастомного индикатора в JSON</sub></sub>
+
+*   ## **Logfile (лог-файл + просмотр через Actuator)**
+    >- <sub><sub>Запись логов в файл:</sub></sub>
+       >
+       >  ```yml
+    >  logging:
+    >    file:
+    >      name: logs/actuator-demo.log
+    >  ```
+    >
+    >- <sub><sub>Просмотр логов через HTTP:</sub></sub>
+       >  - <sub><sub>`GET /actuator/logfile`</sub></sub>
+    >
+    >- <sub><sub>Уровни логирования:</sub></sub>
+       >  - <sub><sub>`root: info`</sub></sub>
+    >  - <sub><sub>`ru.otus.hw: DEBUG`</sub></sub>
+
+*   ## **Как запустить**
+    >- <sub><sub>Сборка и запуск:</sub></sub>
+       >  - <sub><sub>`mvn clean package`</sub></sub>
+    >  - <sub><sub>`mvn spring-boot:run`</sub></sub>
+    >
+    >- <sub><sub>Проверочные URL:</sub></sub>
+       >  - <sub><sub>`/datarest`</sub></sub>
+    >  - <sub><sub>`/actuator/health`</sub></sub>
+    >  - <sub><sub>`/actuator/metrics`</sub></sub>
+    >  - <sub><sub>`/actuator/prometheus`</sub></sub>
+    >  - <sub><sub>`/actuator/logfile`</sub></sub>
+
+*   ## **Тестирование**
+    >- <sub><sub>**spring-boot-starter-test** — JUnit 5, AssertJ, Mockito</sub></sub>
+    >- <sub><sub>Юнит-тест кастомного индикатора:</sub></sub>
+       >  - <sub><sub>проверка статусов `UP / DEGRADED / DOWN`</sub></sub>
+    >  - <sub><sub>проверка `details` (books/authors/genres/catalogReady/message)</sub></sub>
+    >
+    >- <sub><sub>Запуск:</sub></sub>
+       >  - <sub><sub>`mvn test`</sub></sub>
