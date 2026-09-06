@@ -1,0 +1,55 @@
+services:
+  library-server:
+    build: hw17-docker
+    image: library-server
+    container_name: library-server
+    ports:
+      - "8080:8080"
+    depends_on:
+      library-db:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://library-db:5432/library_db
+      - SPRING_DATASOURCE_USERNAME=username
+      - SPRING_DATASOURCE_PASSWORD=password
+    networks:
+      - library-net
+
+  library-db:
+    image: postgres:16.1
+    container_name: library-postgres
+    ports:
+      - "6541:5432"
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=username
+      - POSTGRES_DB=library_db
+    volumes:
+      - library-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -q -d $POSTGRES_DB -U $POSTGRES_USER"]
+      timeout: 5s
+      interval: 5s
+      retries: 10
+    networks:
+      - library-net
+
+  prometheus:
+    image: prom/prometheus:v2.49.0
+    container_name: hw17-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    depends_on:
+      - library-server
+    networks:
+      - library-net
+
+volumes:
+  prometheus-data:
+  library-db-data:
+
+networks:
+  library-net:
