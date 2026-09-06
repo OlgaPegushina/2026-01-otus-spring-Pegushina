@@ -13,7 +13,6 @@
     <groupId>ru.otus</groupId>
     <artifactId>hw17-docker</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>spring-actuator-demo</name>
 
     <properties>
         <java.version>21</java.version>
