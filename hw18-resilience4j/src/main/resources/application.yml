@@ -1,0 +1,100 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+  datasource:
+    url: jdbc:h2:mem:maindb
+
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:data.sql
+      schema-locations: classpath:schema.sql
+
+  output:
+    ansi:
+      enabled: ALWAYS
+
+  data:
+    rest:
+      base-path: /datarest
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, loggers, prometheus
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+  health:
+    circuitbreakers:
+      enabled: true
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n"
+  level:
+    root: info
+    ru.otus.hw: DEBUG
+    io.github.resilience4j: DEBUG
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-type: COUNT_BASED  # окно статистики по количеству вызовов
+        sliding-window-size: 20           # размер окна: учитываем последние 20 вызовов
+        minimum-number-of-calls: 10       # пока не наберётся 10 вызовов, CB не будет открываться по процентам
+        failure-rate-threshold: 50        # если % ошибок в окне >= 50% CB откроется
+        slow-call-rate-threshold: 50      # если % медленных вызовов в окне >= 50% -> CB откроется
+        slow-call-duration-threshold: 2s  # вызов считается медленным, если длится >= 2 секунд
+        permitted-number-of-calls-in-half-open-state: 5  # в HALF_OPEN разрешено 5 пробных вызовов для проверки сервиса
+        wait-duration-in-open-state: 10s                 # сколько держим OPEN (вызовы не идут в основной код) перед попыткой проверки
+        automatic-transition-from-open-to-half-open-enabled: true  # по истечении автоматически перейти в HALF_OPEN
+        register-health-indicator: true  # добавить состояние CB в Actuator Health (/actuator/health), чтобы его было видно снаружи
+        ignore-exceptions:
+          - ru.otus.hw.exception.EntityNotFoundException
+          - java.lang.IllegalArgumentException
+    instances:
+      authorService:
+        baseConfig: default
+      bookService:
+        baseConfig: default
+      commentService:
+        baseConfig: default
+      genreService:
+        baseConfig: default
+
+  retry:
+    configs:
+      default:
+        max-attempts: 3                 # максимум попыток выполнения вызова (включая первую)
+        wait-duration: 200ms            # пауза между попытками, если не включен backoff
+        enable-exponential-backoff: true # включить экспоненциальный рост задержки между повторами
+        exponential-backoff-multiplier: 2 # во сколько раз увеличивать задержку после каждой неудачи
+        # РЕТРАИМ ТОЛЬКО транзиентные (временные) проблемы
+        retry-exceptions:
+          - org.springframework.dao.TransientDataAccessException
+          - org.springframework.dao.RecoverableDataAccessException
+          - org.springframework.dao.QueryTimeoutException
+          - org.springframework.dao.CannotAcquireLockException
+          - org.springframework.dao.DeadlockLoserDataAccessException
+          - java.sql.SQLTransientException
+        ignore-exceptions:
+          - ru.otus.hw.exception.EntityNotFoundException
+          - java.lang.IllegalArgumentException
+    instances:
+      authorService:
+        baseConfig: default
+      bookService:
+        baseConfig: default
+      commentService:
+        baseConfig: default
+      genreService:
+        baseConfig: default
