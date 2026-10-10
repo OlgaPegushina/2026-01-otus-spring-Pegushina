@@ -78,6 +78,14 @@ resilience4j:
         wait-duration: 200ms            # пауза между попытками, если не включен backoff
         enable-exponential-backoff: true # включить экспоненциальный рост задержки между повторами
         exponential-backoff-multiplier: 2 # во сколько раз увеличивать задержку после каждой неудачи
+        # РЕТРАИМ ТОЛЬКО транзиентные (временные) проблемы
+        retry-exceptions:
+          - org.springframework.dao.TransientDataAccessException
+          - org.springframework.dao.RecoverableDataAccessException
+          - org.springframework.dao.QueryTimeoutException
+          - org.springframework.dao.CannotAcquireLockException
+          - org.springframework.dao.DeadlockLoserDataAccessException
+          - java.sql.SQLTransientException
         ignore-exceptions:
           - ru.otus.hw.exception.EntityNotFoundException
           - java.lang.IllegalArgumentException
